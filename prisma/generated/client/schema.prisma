@@ -1,0 +1,66 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../prisma/generated/client"
+  binaryTargets = ["native", "darwin", "darwin-arm64"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(USER)
+  password      String?
+  accounts      Account[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Folder {
+  id        Int        @id @default(autoincrement())
+  name      String
+  createdAt DateTime   @default(now())
+  bookmarks Bookmark[]
+  userId    String
+}
+
+model Bookmark {
+  id          Int      @id @default(autoincrement())
+  title       String?
+  text        String
+  screenshot  String?
+  tags        String
+  createdAt   DateTime @default(now())
+  folderId    Int?
+  folder      Folder?  @relation(fields: [folderId], references: [id])
+  userId      String
+  aspectRatio Int?
+}
