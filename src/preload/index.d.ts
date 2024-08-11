@@ -2,7 +2,8 @@ import { ElectronAPI } from '@electron-toolkit/preload'
 
 declare global {
   interface Window {
-    electron: ElectronAPI
-    api: unknown
+    electrons: {
+      createBookmark: (text: string) => Promise<any>
+    }
   }
 }

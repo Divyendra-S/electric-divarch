@@ -3,7 +3,7 @@ import electronLogo from './assets/electron.svg'
 import HomePage from './components/EverythingComponents/HomePage'
 
 function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+  
 
   return (
     <>

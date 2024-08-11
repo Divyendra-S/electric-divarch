@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { prisma } from './prisma'
 
 function createWindow(): void {
   // Create the browser window.
@@ -51,7 +52,25 @@ app.whenReady().then(() => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
-
+  ipcMain.handle("create-bookmark", async (_,text: string) => {
+    const tags = "hello world";
+    const userId = "example"
+    try {
+      const temos = await prisma.bookmark.create({
+        data: {
+          
+          text,
+          tags,
+          
+          userId,
+        },
+      }) ;
+      return temos;
+    } catch (error) {
+      console.error("Error fetching temos from database:", error);
+      return [];
+    }
+  });
   createWindow()
 
   app.on('activate', function () {
