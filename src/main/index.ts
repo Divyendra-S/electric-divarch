@@ -13,7 +13,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.ts'),
+      preload: join(__dirname, '../preload/index.js'),
       sandbox: false
     }
   })
@@ -53,8 +53,8 @@ app.whenReady().then(() => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
   ipcMain.handle("create-bookmark", async (_,text: string) => {
-    const tags = "hello world";
-    const userId = "example"
+    const tags = " world";
+    const userId = "example11"
     try {
       const temos = await prisma.bookmark.create({
         data: {

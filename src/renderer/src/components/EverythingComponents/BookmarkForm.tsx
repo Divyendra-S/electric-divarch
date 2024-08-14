@@ -1,9 +1,9 @@
-"use client";
 import React, { useEffect, useRef, useState } from "react";
 // import CreateBookmark from "@/actions/CreateBookmark";
 // import { getAllBookmarks } from "@/actions/getAllBookmarks";
 import { toast } from "sonner";
 import { Bookmark, Folder } from "../../lib/schema";
+import { Button } from "../ui/button";
 type BookmarkCardProps = {
   setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   onFocus: () => void;
@@ -18,7 +18,8 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await window.electron.createBookmark(  text );
+      const response = await window.electrons.createBookmark(text)
+      if(!response) console.log("Error creating bookmark");
       if (!response?.message) {
         toast.error(response?.error);
       }
@@ -54,10 +55,11 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
     }
   }, [text]);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = async(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit(e as unknown as React.FormEvent);
+      setIsLoading(true);
+    
 
     }
   };
@@ -88,9 +90,9 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
           }}
         />
       </div>
-      {/* <Button type="submit" className="mt-2" disabled={isLoading}>
+      <Button type="submit" className="mt-2" disabled={isLoading}>
         {isLoading ? "Submitting..." : "Submit"}
-      </Button> */}
+      </Button>
     </form>
   );
 };

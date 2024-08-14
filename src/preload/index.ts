@@ -8,7 +8,7 @@ if (!process.contextIsolated) {
 } 
 
 try {
-  contextBridge.exposeInMainWorld('electron', {
+  contextBridge.exposeInMainWorld("electrons", {
     createBookmark: (text: string) => ipcRenderer.invoke("create-bookmark", text),
   })
   
