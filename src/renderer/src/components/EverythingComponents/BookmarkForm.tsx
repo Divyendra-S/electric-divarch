@@ -19,11 +19,14 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
     setIsLoading(true);
     try {
       const response = await window.electrons.createBookmark(text)
+      await window.electrons.fetchOgimage('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
+      const tags = await window.electrons.createTags('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
       if(!response) console.log("Error creating bookmark");
       if (!response?.message) {
         toast.error(response?.error);
       }
       toast.success(response?.message);
+      toast.success("Bookmark created successfully")
       // const allBookmarks = await getAllBookmarks();
 
       // if ("error" in allBookmarks) {
@@ -58,7 +61,7 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
   const handleKeyDown = async(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      setIsLoading(true);
+      handleSubmit(e);
     
 
     }
@@ -90,9 +93,9 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
           }}
         />
       </div>
-      <Button type="submit" className="mt-2" disabled={isLoading}>
+      {/* <Button type="submit" className="mt-2" disabled={isLoading}>
         {isLoading ? "Submitting..." : "Submit"}
-      </Button>
+      </Button> */}
     </form>
   );
 };
