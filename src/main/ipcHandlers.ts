@@ -821,3 +821,122 @@ export const setupIpcHandlers = () => {
     }
   })
 }
+
+
+
+// import { net, BrowserWindow } from 'electron';
+// import ogs from 'open-graph-scraper';
+// import prisma from './prisma'; // Adjust the import according to your project structure
+// import path from 'path';
+// import fs from 'fs';
+
+// async function fetchOgImageAndSave(url: string) {
+//   try {
+//     const html = await fetchHtml(url);
+//     const options = { html, url };
+//     const data = await ogs(options);
+//     const { error, result } = data;
+
+//     if (error) {
+//       console.error('OGS Error:', result);
+//       throw new Error(result.error);
+//     }
+
+//     console.log('OGS Result:', result);
+
+//     // Check if ogImage exists and handle it as an array
+//     let ogImageUrl = result.ogImage?.[0]?.url;
+//     let base64Image;
+
+//     if (ogImageUrl) {
+//       // Fetch the OG image and convert it to base64
+//       base64Image = await fetchImageAsBase64(ogImageUrl);
+//     } else {
+//       // If no OG image, capture a screenshot of the webpage
+//       base64Image = await captureScreenshotAsBase64(url);
+//     }
+
+//     // Save the base64 image in the database using Prisma
+//     const savedImage = await prisma.image.create({
+//       data: {
+//         url,
+//         imageBase64: base64Image,
+//       },
+//     });
+
+//     return savedImage;
+//   } catch (error) {
+//     console.error('Error fetching OG data:', error);
+//     throw error;
+//   }
+// }
+
+// function fetchHtml(url: string): Promise<string> {
+//   return new Promise((resolve, reject) => {
+//     const request = net.request(url);
+//     let data = '';
+
+//     request.on('response', (response) => {
+//       response.on('data', (chunk) => {
+//         data += chunk;
+//       });
+//       response.on('end', () => {
+//         resolve(data);
+//       });
+//     });
+
+//     request.on('error', (error) => {
+//       reject(error);
+//     });
+
+//     request.end();
+//   });
+// }
+
+// function fetchImageAsBase64(url: string): Promise<string> {
+//   return new Promise((resolve, reject) => {
+//     const request = net.request(url);
+//     let chunks: Uint8Array[] = [];
+
+//     request.on('response', (response) => {
+//       response.on('data', (chunk) => {
+//         chunks.push(new Uint8Array(chunk));
+//       });
+//       response.on('end', () => {
+//         const buffer = Buffer.concat(chunks);
+//         const base64Image = buffer.toString('base64');
+//         resolve(base64Image);
+//       });
+//     });
+
+//     request.on('error', (error) => {
+//       reject(error);
+//     });
+
+//     request.end();
+//   });
+// }
+
+// async function captureScreenshotAsBase64(url: string): Promise<string> {
+//   // Create a hidden BrowserWindow to capture the screenshot
+//   const win = new BrowserWindow({
+//     width: 1280,
+//     height: 800,
+//     show: false,
+//   });
+
+//   await win.loadURL(url);
+
+//   // Capture the screenshot
+//   const screenshot = await win.webContents.capturePage();
+
+//   // Convert the screenshot to a base64 string
+//   const base64Image = screenshot.toDataURL().split(',')[1];
+
+//   // Clean up the BrowserWindow
+//   win.close();
+
+//   return base64Image;
+// }
+
+// export default fetchOgImageAndSave;
