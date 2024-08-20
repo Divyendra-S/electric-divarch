@@ -55,26 +55,26 @@ const folderSchema: Record<string, unknown> = {
 // }
 async function fetchOgImageAndSave(url: string) {
   try {
-    const html = await fetchHtml(url);
-    const options = { html, url };
-    const data = await ogs(options);
-    const { error, result } = data;
+    const html = await fetchHtml(url)
+    const options = { html, url }
+    const data = await ogs(options)
+    const { error, result } = data
 
     if (error) {
-      console.error('OGS Error:', result);
-      throw new Error(result.error);
+      console.error('OGS Error:', result)
+      throw new Error(result.error)
     }
 
-    console.log('OGS Result:', result);
+    console.log('OGS Result:', result)
 
     // Extract the OG image URL
-    const ogImageUrl = result.ogImage?.url;
+    const ogImageUrl = result.ogImage?.url
     if (!ogImageUrl) {
-      throw new Error('No OG image found');
+      throw new Error('No OG image found')
     }
 
     // Fetch the OG image and convert it to base64
-    const base64Image = await fetchImageAsBase64(ogImageUrl);
+    const base64Image = await fetchImageAsBase64(ogImageUrl)
 
     // Save the base64 image in the database using Prisma
     // const savedImage = await prisma.image.create({
@@ -83,59 +83,58 @@ async function fetchOgImageAndSave(url: string) {
     //     imageBase64: base64Image,
     //   },
     // });
-    
 
-    return base64Image;
+    return base64Image
   } catch (error) {
-    console.error('Error fetching OG data:', error);
-    throw error;
+    console.error('Error fetching OG data:', error)
+    throw error
   }
 }
 
 function fetchHtml(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const request = net.request(url);
-    let data = '';
+    const request = net.request(url)
+    let data = ''
 
     request.on('response', (response) => {
       response.on('data', (chunk) => {
-        data += chunk;
-      });
+        data += chunk
+      })
       response.on('end', () => {
-        resolve(data);
-      });
-    });
+        resolve(data)
+      })
+    })
 
     request.on('error', (error) => {
-      reject(error);
-    });
+      reject(error)
+    })
 
-    request.end();
-  });
+    request.end()
+  })
 }
 
 function fetchImageAsBase64(url: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const request = net.request(url);
-    let chunks: Uint8Array[] = [];
+    const request = net.request(url)
+    let chunks: Uint8Array[] = []
 
     request.on('response', (response) => {
       response.on('data', (chunk) => {
-        chunks.push(new Uint8Array(chunk));
-      });
+        chunks.push(new Uint8Array(chunk))
+      })
       response.on('end', () => {
-        const buffer = Buffer.concat(chunks);
-        const base64Image = buffer.toString('base64');
-        resolve(base64Image);
-      });
-    });
+        const buffer = Buffer.concat(chunks)
+        const base64Image = buffer.toString('base64')
+        resolve(base64Image)
+      })
+    })
 
     request.on('error', (error) => {
-      reject(error);
-    });
+      reject(error)
+    })
 
-    request.end();
-  });
+    request.end()
+  })
 }
 
 function truncateHtml(html: string, maxLength: number = 3000): string {
@@ -143,52 +142,44 @@ function truncateHtml(html: string, maxLength: number = 3000): string {
   return html.substring(0, maxLength) + '...'
 }
 
-
-
 export const setupIpcHandlers = () => {
-
   async function fetchOgImageAndSave(url: string) {
     try {
-      const html = await fetchHtml(url);
-      const options = { html, url };
-      const data = await ogs(options);
-      const { error, result } = data;
-  
+      const html = await fetchHtml(url)
+      const options = { html, url }
+      const data = await ogs(options)
+      const { error, result } = data
+
       if (error) {
-        console.error('OGS Error:', result);
-        throw new Error(result.error);
+        console.error('OGS Error:', result)
+        throw new Error(result.error)
       }
-  
-      console.log('OGS Result:', result);
-  
+
+      console.log('OGS Result:', result)
+
       // Check if ogImage exists and handle it as an array
-      const ogImageUrl = result.ogImage?.[0]?.url;
+      const ogImageUrl = result.ogImage?.[0]?.url
       if (!ogImageUrl) {
-        throw new Error('No OG image found');
+        throw new Error('No OG image found')
       }
-  
+
       // Fetch the OG image and convert it to base64
-      const base64Image = await fetchImageAsBase64(ogImageUrl);
-  
+      const base64Image = await fetchImageAsBase64(ogImageUrl)
+
       // Save the base64 image in the database using Prisma
-     
-  
-      return base64Image;
+
+      return base64Image
     } catch (error) {
-      console.error('Error fetching OG data:', error);
-      throw error;
+      console.error('Error fetching OG data:', error)
+      throw error
     }
   }
-  
 
-  async function analyzeContentAndURL(
-    url: string,
-    html: string
-  ): Promise<Schema> {
+  async function analyzeContentAndURL(url: string, html: string): Promise<Schema> {
     const fullHtml = await fetchHtml(url)
-      const truncatedHtml = truncateHtml(fullHtml)
+    const truncatedHtml = truncateHtml(fullHtml)
 
-      const prompt = `
+    const prompt = `
       Analyze the following HTML content and URL to generate relevant tags and a concise title. The content is truncated.
       URL: ${url}
       HTML: ${truncatedHtml}
@@ -207,30 +198,125 @@ export const setupIpcHandlers = () => {
       - Aim to improve findability
       Remember, the goal is to create tags that would help a user easily find and identify this bookmark in a large collection.
       `
-      const jsonSchema = JSON.stringify(schema, null, 4)
-      const chat_completion = await groq.chat.completions.create({
-        messages: [
-          {
-            role: 'system',
-            content: `You are an intelligent assistant that generates tags and concise titles based on given HTML content and URL. The JSON object must use the schema: ${jsonSchema}`
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        model: 'llama3-70b-8192',
-        temperature: 0,
-        stream: false,
-        response_format: { type: 'json_object' }
-      })
-      const content = chat_completion.choices[0].message.content
-      if (!content) {
-        throw new Error('Received null or undefined content from chat completion')
-      }
-      const result: Schema = JSON.parse(content)
-      console.log(result)
-      return result
+    const jsonSchema = JSON.stringify(schema, null, 4)
+    const chat_completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `You are an intelligent assistant that generates tags and concise titles based on given HTML content and URL. The JSON object must use the schema: ${jsonSchema}`
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama3-70b-8192',
+      temperature: 0,
+      stream: false,
+      response_format: { type: 'json_object' }
+    })
+    const content = chat_completion.choices[0].message.content
+    if (!content) {
+      throw new Error('Received null or undefined content from chat completion')
+    }
+    const result: Schema = JSON.parse(content)
+    console.log(result)
+    return result
+  }
+
+  async function findSuitableFolder(
+    folders: any[],
+    newTags: string,
+    url: string
+  ): Promise<string | false> {
+    const prompt = `
+  Here are the existing folders and their tags: ${JSON.stringify(folders)}.
+  Here are the tags for a new bookmark: ${newTags}.
+  Here is the URL for the new bookmark: ${url}
+  Task:
+  1. Determine if the new bookmark fits into any of the existing folders based on their tags and names.
+  2. If it fits, return the name of the folder. If not, return false.
+  3. If it doesn't fit return false, it's not necessary to return a folder name
+
+  Guidelines:
+  - Match the new bookmark to folders that broadly cover the relevant tags.
+  - Avoid assigning the bookmark to a folder based on a single minor match.
+  - Consider the broader topic that the tags imply and see if it fits within any folder's scope.
+  - Check if the folder names themselves align with the new bookmark's tags.
+  - Return the name of the matching folder or false if no appropriate folder is found.
+  - Ensure to prioritize accurate and relevant folder matching to maintain proper organization.
+  - Check if the URL matches the text in the existing folder or name of the existing folder not word to word but like main The website name and domain, don't consider 'https://www.' while checking (extracted from the ${url})
+  - In whichever folder most things match, save the bookmark to that folder but remember if not much information matches return false
+  - Don't match just because both are Google search but get the context this was an example
+  `
+
+    const jsonSchema = JSON.stringify(folderSchema, null, 4)
+
+    const chat_completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `You are an intelligent assistant determining the appropriate folder for new bookmarks based on tags and folder names. The JSON object must use the schema: ${jsonSchema}`
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama3-70b-8192', // Ensure this is the correct model name
+      temperature: 0,
+      stream: false,
+      response_format: { type: 'json_object' }
+    })
+
+    const content = chat_completion.choices[0].message.content
+    if (!content) {
+      throw new Error('Received null or undefined content from chat completion')
+    }
+
+    const result: FolderSchema = JSON.parse(content)
+    return result.folderName
+  }
+  async function findSuitableFolderForText(folders: any[], text: string): Promise<string | false> {
+    const prompt = `
+  Here are the existing folders and their tags: ${JSON.stringify(folders)}.
+  Here is the text for a new bookmark: ${text}.
+  Task: Determine if the new bookmark fits into any existing folder based on their tags and names.
+  Guidelines:
+  - Match the new bookmark to folders that broadly cover the relevant tags.
+  - Avoid assigning the bookmark to a folder based on a single minor match.
+  - Consider the broader topic that the text implies and see if it fits within any folder's scope.
+  - Check if the folder names themselves align with the new bookmark's text.
+  - Return the name of the matching folder or false if no appropriate folder is found.
+  - Ensure to prioritize accurate and relevant folder matching to maintain proper organization.
+  `
+
+    const jsonSchema = JSON.stringify(folderSchema, null, 4)
+
+    const chat_completion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: 'system',
+          content: `You are an intelligent assistant determining the appropriate folder for new bookmarks based on text and folder names. The JSON object must use the schema: ${jsonSchema}`
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      model: 'llama3-70b-8192', // Ensure this is the correct model name
+      temperature: 0,
+      stream: false,
+      response_format: { type: 'json_object' }
+    })
+
+    const content = chat_completion.choices[0].message.content
+    if (!content) {
+      throw new Error('Received null or undefined content from chat completion')
+    }
+
+    const result: FolderSchema = JSON.parse(content)
+    return result.folderName
   }
 
   // ipcMain.handle('create-bookmark', async (_, text: string) => {
@@ -650,52 +736,47 @@ export const setupIpcHandlers = () => {
     }
   })
 
-  ipcMain.handle(
-    'create-bookmark',
-    async (_,  url?: string, Text?: string ) => {
-      try{
-        if (!url) {
-          return { error: "URL not provided" };
-        }
-  
-        // Fetch HTML content
-        const html = await fetchHtml(url);
-  
-        // Fetch OG image (screenshot)
-        const ogData = await fetchOgImageAndSave( url);
-        console.log('Og image', ogData,'ogsoosso')
-        
-        // const options = { html, url }
-        // const data = await ogs(options)
-        // const { error, result } = data
-  
-        // if (error) {
-        //   console.error('OGS Error:', result)
-        //   throw new Error(result.error)
-        // }
-  
-        // console.log('OGS Result:', result)
-  
-        // Generate tags and title
-        const tagsRes = await analyzeContentAndURL(url,html);
-        const tags = tagsRes.tags;
-        const title = tagsRes.title;
-  
-        if (!tags) {
-          console.log("No tags generated");
-          return { error: "Failed to generate tags" };
-        }
-        console.log("From create-bookmark", tagsRes)
-        console.log(tagsRes.tags)
-        return tagsRes;
-        
-      } catch (error) {
-        console.log(error);
-        return { error: "Failed to create bookmark" };
+  ipcMain.handle('create-bookmark', async (_, url?: string, Text?: string) => {
+    try {
+      if (!url) {
+        return { error: 'URL not provided' }
       }
+
+      // Fetch HTML content
+      const html = await fetchHtml(url)
+
+      // Fetch OG image (screenshot)
+      const ogData = await fetchOgImageAndSave(url)
+      console.log('Og image', ogData, 'ogsoosso')
+
+      // const options = { html, url }
+      // const data = await ogs(options)
+      // const { error, result } = data
+
+      // if (error) {
+      //   console.error('OGS Error:', result)
+      //   throw new Error(result.error)
+      // }
+
+      // console.log('OGS Result:', result)
+
+      // Generate tags and title
+      const tagsRes = await analyzeContentAndURL(url, html)
+      const tags = tagsRes.tags
+      const title = tagsRes.title
+
+      if (!tags) {
+        console.log('No tags generated')
+        return { error: 'Failed to generate tags' }
+      }
+      console.log('From create-bookmark', tagsRes)
+      console.log(tagsRes.tags)
+      return tagsRes
+    } catch (error) {
+      console.log(error)
+      return { error: 'Failed to create bookmark' }
     }
-  );
-  
+  })
 
   ipcMain.handle('add-tag', async (_, bookmarkId: number, newTag: string) => {
     try {
@@ -821,8 +902,6 @@ export const setupIpcHandlers = () => {
     }
   })
 }
-
-
 
 // import { net, BrowserWindow } from 'electron';
 // import ogs from 'open-graph-scraper';
