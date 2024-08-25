@@ -15,6 +15,7 @@ declare global {
       updateFolderName: (folderId: number, newName: string) => Promise<any>;
       getFoldersWithFirstBookmark: (userId: string) => Promise<any[]>;
       getFolderByBookmarkId: (bookmarkId: number, userId: string) => Promise<any | null>;
+      getAllBookmarks: () => Promise<any | null>;
     };
   }
 }

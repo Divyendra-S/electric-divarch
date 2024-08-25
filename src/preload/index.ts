@@ -1,12 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
+
 if (!process.contextIsolated) {
   throw new Error(`Context isolation must be enabled in Electron`)
 }
 // let renderTimeout;
 try {
   contextBridge.exposeInMainWorld('electrons', {
-    createBookmark: (url:string,Text: string) => ipcRenderer.invoke('create-bookmark', url,Text),
+    createBookmark: (url: string, Text: string) => ipcRenderer.invoke('create-bookmark', url, Text),
     fetchOgimage: (url: string) => ipcRenderer.invoke('fetch-ogimage', url),
     createTags: (url: string) => ipcRenderer.invoke('create-tags', url),
     findSuitableFolder: (folders: any[], newTags: string, url: string) =>
@@ -24,8 +25,10 @@ try {
     getFoldersWithFirstBookmark: (userId: string) =>
       ipcRenderer.invoke('get-folders-with-first-bookmark', userId),
     getFolderByBookmarkId: (bookmarkId: number, userId: string) =>
-      ipcRenderer.invoke('get-folder-by-bookmark-id', bookmarkId, userId)
-  })
+      ipcRenderer.invoke('get-folder-by-bookmark-id', bookmarkId, userId),
+    getAllBookmarks: () =>
+      ipcRenderer.invoke('get-all-bookmarks'),
+  });
 } catch (error) {
   console.error(error)
 }

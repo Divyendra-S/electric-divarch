@@ -1,15 +1,15 @@
-import Database from 'better-sqlite3'
-import { dbPath } from './constants'
-import { dirname } from 'path'
-import { existsSync, mkdirSync } from 'fs'
+import Database, { type Database as SqliteDatabase } from 'better-sqlite3';
+import { dbPath } from './constants';
+import { dirname } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 // Ensure the database directory exists
-const dir = dirname(dbPath)
+const dir = dirname(dbPath);
 if (!existsSync(dir)) {
-  mkdirSync(dir, { recursive: true })
+  mkdirSync(dir, { recursive: true });
 }
 
-const db = new Database(dbPath)
+const db: SqliteDatabase = new Database(dbPath);
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS Folder (
@@ -29,25 +29,35 @@ db.exec(`
       aspectRatio INTEGER,
       FOREIGN KEY (folderId) REFERENCES Folder(id)
     );
-  `)
+  `);
+
+// Define the type for the column info
+interface TableColumnInfo {
+  cid: number;
+  name: string;
+  type: string;
+  notnull: number;
+  dflt_value: any;
+  pk: number;
+}
 
 // Function to add a column if it does not already exist
-function addColumnIfNotExists(tableName, columnName, columnType, defaultValue) {
-  const tableInfo = db.prepare(`PRAGMA table_info(${tableName})`).all()
-  const columns = tableInfo.map((col) => col.name)
+function addColumnIfNotExists(tableName: string, columnName: string, columnType: string, defaultValue?: string) {
+  const tableInfo: TableColumnInfo[] = db.prepare(`PRAGMA table_info(${tableName})`).all() as unknown as TableColumnInfo[]; // Explicitly cast the result to TableColumnInfo[]
+  const columns = tableInfo.map((col) => col.name);
 
   if (!columns.includes(columnName)) {
-    let alterTableQuery = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`
+    let alterTableQuery = `ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`;
     if (defaultValue !== undefined && defaultValue !== 'CURRENT_TIMESTAMP') {
-      alterTableQuery += ` DEFAULT ${defaultValue}`
+      alterTableQuery += ` DEFAULT ${defaultValue}`;
     }
-    db.exec(alterTableQuery)
+    db.exec(alterTableQuery);
 
     if (columnType === 'TEXT' && defaultValue === 'CURRENT_TIMESTAMP') {
-      db.exec(`UPDATE ${tableName} SET ${columnName} = CURRENT_TIMESTAMP`)
+      db.exec(`UPDATE ${tableName} SET ${columnName} = CURRENT_TIMESTAMP`);
     }
   }
 }
 
 // Export the database instance and the function
-export { db, addColumnIfNotExists }
+export { db, addColumnIfNotExists };

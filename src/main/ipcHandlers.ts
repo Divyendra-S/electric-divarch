@@ -1,8 +1,30 @@
 import { ipcMain, net } from 'electron'
 import Groq from 'groq-sdk'
-import { prisma } from './prisma'
+import {
+  createFolder,
+  createFolderAndAddBookmarks,
+  fetchAllFoldersWithTags,
+  getFolderByBookmarkId,
+  getFolderById,
+  getFolders,
+  getFoldersWithFirstBookmark,
+  updateFolderName
+} from './folderOperations'
+import {
+  addBookmarkToFolder,
+  addTag,
+  deleteBookmark,
+  deleteTag,
+  getAllBookmarks,
+  getBookmarksByFolderId,
+  searchBookmarks,
+  updateBookmark
+} from './bookmarkOperations'
+import { db } from './database'
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+const groq = new Groq({ apiKey: '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' })
+// const groq = new Groq({ apiKey: process.env.GROOQ_API_KEY })
+
 const ogs = require('open-graph-scraper-lite')
 
 interface Schema {
@@ -143,6 +165,7 @@ function truncateHtml(html: string, maxLength: number = 3000): string {
 }
 
 export const setupIpcHandlers = () => {
+  
   async function fetchOgImageAndSave(url: string) {
     try {
       const html = await fetchHtml(url)
@@ -319,24 +342,6 @@ export const setupIpcHandlers = () => {
     return result.folderName
   }
 
-  // ipcMain.handle('create-bookmark', async (_, text: string) => {
-  //   const tags = 'world'
-  //   const userId = 'example22'
-  //   try {
-  //     const bookmark = await prisma.bookmark.create({
-  //       data: {
-  //         text,
-  //         tags,
-  //         userId
-  //       }
-  //     })
-  //     return bookmark
-  //   } catch (error) {
-  //     console.error('Error creating bookmark:', error)
-  //     return []
-  //   }
-  // })
-
   ipcMain.handle('create-tags', async (_, url: string): Promise<Schema> => {
     try {
       const fullHtml = await fetchHtml(url)
@@ -508,80 +513,27 @@ export const setupIpcHandlers = () => {
     }
   })
 
-  ipcMain.handle('fetch-all-folders-with-tags', async (_, userId: string) => {
-    if (!userId) {
-      return { error: 'Invalid user' }
-    }
+  ipcMain.handle('fetch-all-folders-with-tags', async () => {
     try {
-      return await prisma.folder.findMany({
-        where: { userId },
-        include: {
-          bookmarks: {
-            select: {
-              tags: true,
-              title: true,
-              text: true
-            }
-          }
-        }
-      })
+      return fetchAllFoldersWithTags()
     } catch (error) {
       console.error('Error fetching folders with tags:', error)
       return { error: 'Error fetching folders with tags' }
     }
   })
 
-  ipcMain.handle('get-folders', async (_, userId: string) => {
-    if (!userId) {
-      return { error: 'Invalid user' }
-    }
+  ipcMain.handle('get-folders', async () => {
     try {
-      const folders = await prisma.folder.findMany({
-        where: { userId },
-        select: { id: true, name: true, createdAt: true },
-        orderBy: { name: 'asc' }
-      })
-      return folders
+      return getFolders()
     } catch (error) {
       console.error('Error fetching folders:', error)
       return []
     }
   })
 
-  ipcMain.handle('get-bookmarks-by-folder-id', async (_, folderId: number, userId: string) => {
-    if (!userId) {
-      return { error: 'Invalid user' }
-    }
-    try {
-      const bookmarks = await prisma.bookmark.findMany({
-        where: { folderId, userId },
-        select: {
-          id: true,
-          title: true,
-          text: true,
-          screenshot: true,
-          tags: true,
-          createdAt: true,
-          folderId: true,
-          userId: true,
-          folder: true,
-          aspectRatio: true
-        }
-      })
-      return bookmarks
-    } catch (error) {
-      console.error('Error fetching bookmarks:', error)
-      return []
-    }
-  })
-
   ipcMain.handle('get-folder-by-id', async (_, folderId: number) => {
     try {
-      const folder = await prisma.folder.findUnique({
-        where: { id: folderId },
-        select: { id: true, name: true, createdAt: true, userId: true }
-      })
-      return folder
+      return getFolderById(folderId)
     } catch (error) {
       console.error('Error fetching folder:', error)
       return null
@@ -590,117 +542,35 @@ export const setupIpcHandlers = () => {
 
   ipcMain.handle('update-folder-name', async (_, folderId: number, newName: string) => {
     try {
-      const updatedFolder = await prisma.folder.update({
-        where: { id: folderId },
-        data: { name: newName }
-      })
-      return updatedFolder
+      return updateFolderName(folderId, newName)
     } catch (error) {
       console.error('Error updating folder name:', error)
       throw error
     }
   })
 
-  ipcMain.handle('get-folders-with-first-bookmark', async (_, userId: string) => {
-    if (!userId) {
-      return { error: 'Invalid user' }
-    }
+  ipcMain.handle('get-folders-with-first-bookmark', async () => {
     try {
-      const folders = await prisma.folder.findMany({
-        where: { userId },
-        include: {
-          bookmarks: {
-            take: 1
-          }
-        }
-      })
-
-      return folders.map((folder) => ({
-        id: folder.id,
-        name: folder.name,
-        createdAt: folder.createdAt,
-        firstBookmark: folder.bookmarks[0] || null
-      }))
+      return getFoldersWithFirstBookmark()
     } catch (error) {
       console.error('Error fetching folders with first bookmark:', error)
       return []
     }
   })
 
-  ipcMain.handle('get-folder-by-bookmark-id', async (_, bookmarkId: number, userId: string) => {
-    if (!userId) {
-      return { error: 'Invalid user' }
-    }
+  ipcMain.handle('create-folder', async (_, folderName: string) => {
     try {
-      const bookmark = await prisma.bookmark.findUnique({
-        where: { id: bookmarkId },
-        include: { folder: true }
-      })
-      return bookmark?.folder || null
+      return createFolder(folderName)
     } catch (error) {
-      console.error('Error fetching folder by bookmark id:', error)
-      return null
-    }
-  })
-  ipcMain.handle('delete-tag', async (_, bookmarkId: number, tagToDelete: string) => {
-    try {
-      const bookmark = await prisma.bookmark.findUnique({
-        where: { id: bookmarkId },
-        select: { tags: true }
-      })
-
-      if (!bookmark) {
-        return { error: 'Bookmark not found' }
-      }
-
-      const updatedTags = bookmark.tags
-        .split(',')
-        .filter((tag) => tag.trim() !== tagToDelete)
-        .join(',')
-
-      await prisma.bookmark.update({
-        where: { id: bookmarkId },
-        data: { tags: updatedTags }
-      })
-
-      return { success: true }
-    } catch (error) {
-      console.error('Error deleting tag:', error)
-      return { error: 'Error in deleting tag' }
+      return { error: 'Failed to create folder' }
     }
   })
 
   ipcMain.handle(
     'create-folder-and-add-bookmarks',
-    async (_, folderName: string, bookmarkIds: number[], userId: string) => {
+    async (_, folderName: string, bookmarkIds: number[]) => {
       try {
-        const alreadyExists = await prisma.folder.findFirst({
-          where: {
-            name: folderName,
-            userId
-          }
-        })
-        if (alreadyExists) {
-          return { error: 'Folder already exists' }
-        }
-        const folder = await prisma.folder.create({
-          data: {
-            name: folderName,
-            userId
-          }
-        })
-
-        await prisma.bookmark.updateMany({
-          where: {
-            id: { in: bookmarkIds },
-            userId
-          },
-          data: {
-            folderId: folder.id
-          }
-        })
-
-        return { success: folder }
+        return createFolderAndAddBookmarks(folderName, bookmarkIds)
       } catch (error) {
         console.error('Error creating folder and adding bookmarks:', error)
         return { error: 'Failed to create folder and add bookmarks' }
@@ -708,98 +578,106 @@ export const setupIpcHandlers = () => {
     }
   )
 
-  ipcMain.handle('create-folder', async (_, folderName: string, userId: string) => {
-    if (!folderName) {
-      return { error: 'Folder name is required' }
+  ipcMain.handle('get-folder-by-bookmark-id', async (_, bookmarkId: number) => {
+    try {
+      return getFolderByBookmarkId(bookmarkId)
+    } catch (error) {
+      console.error('Error fetching folder by bookmark id:', error)
+      return null
     }
+  })
+
+  ipcMain.handle('get-bookmarks-by-folder-id', async (_, folderId: number) => {
+    try {
+      return getBookmarksByFolderId(folderId)
+    } catch (error) {
+      console.error('Error fetching bookmarks:', error)
+      return []
+    }
+  })
+
+  ipcMain.handle('delete-tag', async (_, bookmarkId: number, tagToDelete: string) => {
+    try {
+      return deleteTag(bookmarkId, tagToDelete)
+    } catch (error) {
+      console.error('Error deleting tag:', error)
+      return { error: 'Error in deleting tag' }
+    }
+  })
+
+  // ipcMain.handle('create-bookmark', async (_, url?: string, Text?: string) => {
+  //   try {
+  //     if (!url) {
+  //       return { error: 'URL not provided' }
+  //     }
+
+  //     // Fetch HTML content
+  //     const html = await fetchHtml(url)
+
+  //     // Fetch OG image (screenshot)
+  //     const ogData = await fetchOgImageAndSave(url)
+  //     console.log('Og image', ogData, 'ogsoosso')
+
+  //     // const options = { html, url }
+  //     // const data = await ogs(options)
+  //     // const { error, result } = data
+
+  //     // if (error) {
+  //     //   console.error('OGS Error:', result)
+  //     //   throw new Error(result.error)
+  //     // }
+
+  //     // console.log('OGS Result:', result)
+
+  //     // Generate tags and title
+  //     const tagsRes = await analyzeContentAndURL(url, html)
+  //     const tags = tagsRes.tags
+  //     const title = tagsRes.title
+
+  //     if (!tags) {
+  //       console.log('No tags generated')
+  //       return { error: 'Failed to generate tags' }
+  //     }
+  //     console.log('From create-bookmark', tagsRes)
+  //     console.log(tagsRes.tags)
+  //     return tagsRes
+  //   } catch (error) {
+  //     console.log(error)
+  //     return { error: 'Failed to create bookmark' }
+  //   }
+  // })
+
+  ipcMain.handle('create-bookmark', async (_, text: string) => {
+    const tags = 'world' // You might want to make this dynamic
 
     try {
-      const alreadyExists = await prisma.folder.findFirst({
-        where: {
-          name: folderName,
-          userId
-        }
-      })
-      if (alreadyExists) {
-        return { error: 'Folder already exists' }
+      const stmt = db.prepare(`
+        INSERT INTO Bookmark (text, tags)
+        VALUES (?, ?)
+      `)
+
+      const result = stmt.run(text, tags)
+
+      if (result.changes > 0) {
+        // Fetch the created bookmark
+        const getBookmark = db.prepare('SELECT * FROM Bookmark WHERE id = ?')
+        const bookmark = getBookmark.get(result.lastInsertRowid)
+        console.log(bookmark)
+        return bookmark
       } else {
-        const folder = await prisma.folder.create({
-          data: {
-            name: folderName,
-            userId
-          }
-        })
-        return { success: folder }
+        throw new Error('Failed to insert bookmark')
       }
     } catch (error) {
-      return { error: 'Failed to create folder' }
+      console.error('Error creating bookmark:', error)
+      return null
     }
   })
-
-  ipcMain.handle('create-bookmark', async (_, url?: string, Text?: string) => {
-    try {
-      if (!url) {
-        return { error: 'URL not provided' }
-      }
-
-      // Fetch HTML content
-      const html = await fetchHtml(url)
-
-      // Fetch OG image (screenshot)
-      const ogData = await fetchOgImageAndSave(url)
-      console.log('Og image', ogData, 'ogsoosso')
-
-      // const options = { html, url }
-      // const data = await ogs(options)
-      // const { error, result } = data
-
-      // if (error) {
-      //   console.error('OGS Error:', result)
-      //   throw new Error(result.error)
-      // }
-
-      // console.log('OGS Result:', result)
-
-      // Generate tags and title
-      const tagsRes = await analyzeContentAndURL(url, html)
-      const tags = tagsRes.tags
-      const title = tagsRes.title
-
-      if (!tags) {
-        console.log('No tags generated')
-        return { error: 'Failed to generate tags' }
-      }
-      console.log('From create-bookmark', tagsRes)
-      console.log(tagsRes.tags)
-      return tagsRes
-    } catch (error) {
-      console.log(error)
-      return { error: 'Failed to create bookmark' }
-    }
-  })
-
   ipcMain.handle('add-tag', async (_, bookmarkId: number, newTag: string) => {
     try {
-      const bookmark = await prisma.bookmark.findUnique({
-        where: { id: bookmarkId },
-        select: { tags: true }
-      })
-
-      if (!bookmark) {
-        throw new Error('Bookmark not found')
-      }
-
-      const updatedTags = bookmark.tags ? `${bookmark.tags},${newTag}` : newTag
-
-      await prisma.bookmark.update({
-        where: { id: bookmarkId },
-        data: { tags: updatedTags }
-      })
-
-      return { success: true }
+      return addTag(bookmarkId, newTag)
     } catch (error) {
       console.error('Error adding tag:', error)
-      return { error: 'Failed to add tag' }
+      return { error: 'Error in adding tag' }
     }
   })
 
@@ -807,16 +685,7 @@ export const setupIpcHandlers = () => {
     'update-bookmark',
     async (_, bookmarkId: number, title?: string, text?: string) => {
       try {
-        const data: { title?: string; text?: string } = {}
-        if (title) data.title = title
-        if (text) data.text = text
-
-        await prisma.bookmark.update({
-          where: { id: bookmarkId },
-          data
-        })
-
-        return { success: true }
+        return updateBookmark(bookmarkId, title, text)
       } catch (error) {
         console.error('Error updating bookmark:', error)
         return { error: 'Failed to update bookmark' }
@@ -824,81 +693,41 @@ export const setupIpcHandlers = () => {
     }
   )
 
-  ipcMain.handle(
-    'add-bookmark-to-folder',
-    async (_, bookmarkId: number, folderId: number, userId: string) => {
-      try {
-        await prisma.bookmark.update({
-          where: { id: bookmarkId },
-          data: { folderId: folderId }
-        })
-        return { success: true }
-      } catch (error) {
-        console.error('Error adding bookmark to folder:', error)
-        return { success: false, error: 'Failed to add bookmark to folder' }
-      }
+  ipcMain.handle('add-bookmark-to-folder', async (_, bookmarkId: number, folderId: number) => {
+    try {
+      return addBookmarkToFolder(bookmarkId, folderId)
+    } catch (error) {
+      console.error('Error adding bookmark to folder:', error)
+      return { error: 'Failed to add bookmark to folder' }
     }
-  )
+  })
 
   ipcMain.handle('delete-bookmark', async (_, bookmarkId: number) => {
     try {
-      await prisma.bookmark.delete({
-        where: { id: bookmarkId }
-      })
-      return { success: true }
+      return deleteBookmark(bookmarkId)
     } catch (error) {
       console.error('Error deleting bookmark:', error)
-      return { success: false, error: 'Failed to delete bookmark' }
+      return { error: 'Failed to delete bookmark' }
     }
   })
 
-  ipcMain.handle('get-all-bookmarks', async (_, userId: string) => {
+  ipcMain.handle('get-all-bookmarks', async () => {
     try {
-      const allBookmarksWithUserAndFolder = await prisma.bookmark.findMany({
-        where: {
-          userId
-        },
-        include: {
-          folder: true
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
-      })
-      return allBookmarksWithUserAndFolder
+      const bookmarkss = await getAllBookmarks();
+      console.log(bookmarkss,"bookmarksssososos")
+      return bookmarkss
     } catch (error) {
-      console.error('Error fetching bookmarks with user and folder:', error)
-      return { error: 'Failed to fetch bookmarks' }
+      console.error('Error fetching bookmarks:', error)
+      return []
     }
   })
 
-  ipcMain.handle('search-bookmarks', async (_, tagsToSearch: string, userId: string) => {
+  ipcMain.handle('search-bookmarks', async (_, tagsToSearch: string) => {
     try {
-      const bookmarks = await prisma.bookmark.findMany({
-        include: {
-          folder: true
-        },
-        where: {
-          userId,
-          OR: [
-            {
-              tags: {
-                contains: tagsToSearch,
-                mode: 'insensitive'
-              }
-            },
-            {
-              text: {
-                contains: tagsToSearch,
-                mode: 'insensitive'
-              }
-            }
-          ]
-        }
-      })
-      return { success: bookmarks }
+      return searchBookmarks(tagsToSearch)
     } catch (error) {
-      return { error: 'failed to search' }
+      console.error('Error searching bookmarks:', error)
+      return []
     }
   })
 }
@@ -1018,4 +847,4 @@ export const setupIpcHandlers = () => {
 //   return base64Image;
 // }
 
-// export default fetchOgImageAndSave;
+// export default fetchOgImageAndSave
