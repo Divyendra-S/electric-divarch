@@ -8,7 +8,7 @@ const dir = dirname(dbPath);
 if (!existsSync(dir)) {
   mkdirSync(dir, { recursive: true });
 }
-
+console.log("Database path:", dbPath);
 const db: SqliteDatabase = new Database(dbPath);
 
 db.exec(`

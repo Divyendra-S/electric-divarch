@@ -22,8 +22,9 @@ import {
 } from './bookmarkOperations'
 import { db } from './database'
 
-const groq = new Groq({ apiKey: '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' })
-// const groq = new Groq({ apiKey: process.env.GROOQ_API_KEY })
+
+
+const groq = new Groq({ apiKey: import.meta.env.VITE_GROQ_API_KEY });
 
 const ogs = require('open-graph-scraper-lite')
 
