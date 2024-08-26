@@ -18,15 +18,16 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await window.electrons.createBookmark(text)
-      const bookmark = await window.electrons.getAllBookmarks()
-      // await window.electrons.fetchOgimage('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
-      const tags = await window.electrons.createTags('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
-      if(!response) console.log("Error creating bookmark");
-      if (!response?.message) {
-        toast.error(response?.error);
-      }
-      toast.success(response?.message);
+      // const response = await window.electrons.createBookmark(text)
+      const bookmarkss = await window.electrons.createBookmarkWithScreenshot(text)
+      // const bookmark = await window.electrons.getAllBookmarks()
+      // // await window.electrons.fetchOgimage('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
+      // const tags = await window.electrons.createTags('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
+      // if(!response) console.log("Error creating bookmark");
+      // if (!response?.message) {
+      //   toast.error(response?.error);
+      // }
+      // toast.success(response?.message);
       toast.success("Bookmark created successfully")
       // const allBookmarks = await getAllBookmarks();
 

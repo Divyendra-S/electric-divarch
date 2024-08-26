@@ -1,7 +1,9 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Bookmark, Folder } from "@/lib/schema";
-import { cn } from "@/lib/utils";
+
+import { Bookmark, Folder } from "../../lib/schema";
+import { Button } from "../ui/button";
+import { cn } from "@renderer/lib/utils";
+
 
 
 interface Folders {

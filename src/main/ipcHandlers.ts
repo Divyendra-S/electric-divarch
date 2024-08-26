@@ -160,7 +160,7 @@ function fetchImageAsBase64(url: string): Promise<string> {
   })
 }
 
-function truncateHtml(html: string, maxLength: number = 3000): string {
+function truncateHtml(html: string, maxLength: number = 1000): string {
   if (html.length <= maxLength) return html
   return html.substring(0, maxLength) + '...'
 }
@@ -199,7 +199,7 @@ export const setupIpcHandlers = () => {
     }
   }
 
-  async function analyzeContentAndURL(url: string, html: string): Promise<Schema> {
+  async function analyzeContentAndURL(url: string): Promise<Schema> {
     const fullHtml = await fetchHtml(url)
     const truncatedHtml = truncateHtml(fullHtml)
 
@@ -606,50 +606,89 @@ export const setupIpcHandlers = () => {
     }
   })
 
-  // ipcMain.handle('create-bookmark', async (_, url?: string, Text?: string) => {
-  //   try {
-  //     if (!url) {
-  //       return { error: 'URL not provided' }
-  //     }
+  ipcMain.handle('create-bookmark-with-screenshot', async (_, url?: string) => {
+    try {
+      if (!url) {
+        return { error: 'URL not provided' }
+      }
 
-  //     // Fetch HTML content
-  //     const html = await fetchHtml(url)
+      // Fetch HTML content
+      // const html = await fetchHtml(url)
 
-  //     // Fetch OG image (screenshot)
-  //     const ogData = await fetchOgImageAndSave(url)
-  //     console.log('Og image', ogData, 'ogsoosso')
+      // Fetch OG image (screenshot)
+      const ogData = await fetchOgImageAndSave(url)
+      // console.log('Og image', ogData, 'ogsoosso')
 
-  //     // const options = { html, url }
-  //     // const data = await ogs(options)
-  //     // const { error, result } = data
+      // const options = { html, url }
+      // const data = await ogs(options)
+      // const { error, result } = data
 
-  //     // if (error) {
-  //     //   console.error('OGS Error:', result)
-  //     //   throw new Error(result.error)
-  //     // }
+      // if (error) {
+      //   console.error('OGS Error:', result)
+      //   throw new Error(result.error)
+      // }
 
-  //     // console.log('OGS Result:', result)
+      // console.log('OGS Result:', result)
 
-  //     // Generate tags and title
-  //     const tagsRes = await analyzeContentAndURL(url, html)
-  //     const tags = tagsRes.tags
-  //     const title = tagsRes.title
+      // Generate tags and title
+      const tagsRes = await analyzeContentAndURL(url)
+      const tags = tagsRes.tags
+      const title = tagsRes.title
 
-  //     if (!tags) {
-  //       console.log('No tags generated')
-  //       return { error: 'Failed to generate tags' }
-  //     }
-  //     console.log('From create-bookmark', tagsRes)
-  //     console.log(tagsRes.tags)
-  //     return tagsRes
-  //   } catch (error) {
-  //     console.log(error)
-  //     return { error: 'Failed to create bookmark' }
-  //   }
-  // })
+      if (!tags) {
+        console.log('No tags generated')
+        return { error: 'Failed to generate tags' }
+      }
+    const folders = await fetchAllFoldersWithTags();
+    if ("error" in folders) {
+      console.error("Error fetching folders:", folders.error);
+      return { error: "Failed to fetch folders" };
+    }
+
+      const suitableFolderName = await findSuitableFolder(folders, tags, url);
+
+      let folder
+      if (suitableFolderName) {
+         folder = db.prepare('SELECT * FROM folder WHERE name = ? LIMIT 1').get(suitableFolderName);
+      }
+      if (!folder) {
+        const insertBookmark = db.prepare(`
+          INSERT INTO bookmark (title, text, tags, screenshot)
+          VALUES (?, ?, ?, ?)
+        `);
+        insertBookmark.run(title, url, tags, ogData);
+      
+        console.log(
+          "folder not found so bookmark created successfully without connecting to any folder"
+        );
+      
+        return {
+          message:
+            "bookmark created successfully!!! without connecting to any folder",
+        };
+      }
+
+      const insertBookmark = db.prepare(`
+        INSERT INTO bookmark (title, text, tags, screenshot, folderId)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      insertBookmark.run(title, url, tags, ogData, folder.id);
+      
+      console.log("success");
+      
+      return {
+        message: "bookmark created successfully and added to suitable folder",
+      };
+      
+      
+    } catch (error) {
+      console.log(error)
+      return { error: 'Failed to create bookmark' }
+    }
+  })
 
   ipcMain.handle('create-bookmark', async (_, text: string) => {
-    const tags = 'world' // You might want to make this dynamic
+    const tags = text // You might want to make this dynamic
 
     try {
       const stmt = db.prepare(`

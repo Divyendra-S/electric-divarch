@@ -1,26 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+
 import BookmarkCard from "./BookmarkCard";
-import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { addTag, updateBookmark } from "@/actions/bookmarkActions";
+
+
+
+
 import { Plus, X, Circle, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import FolderSelector from "./FolderSelector";
-import Image from "next/image";
+
 import { toast } from "sonner";
-import {
-  addBookmarkToFolder,
-  deleteBookmark,
-} from "@/actions/addOrDeleteBookmark";
-import {
-  getBookmarksByFolderId,
-  getFolders,
-} from "@/actions/fetchAllFolderWithTags";
-import { DeleteTag } from "@/actions/DeleteTag";
-import { getAllBookmarks } from "@/actions/getAllBookmarks";
-import { Bookmark, Folder } from "@/lib/schema";
+
+
+import { Bookmark, Folder } from "../../lib/schema";
+import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { cn } from "@renderer/lib/utils";
 
 
 
@@ -73,7 +69,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   const handleAddToFolder = async (folderId: number) => {
     try {
-      const result = await addBookmarkToFolder(bookmarkId, folderId);
+      const result = await window.electrons.addBookmarkToFolder(bookmarkId, folderId);
       if (result.success) {
         setShowFolderSelector(false);
         toast.success("Bookmark added to folder successfully");
@@ -89,10 +85,10 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   const handleDeleteBookmark = async () => {
     try {
-      const result = await deleteBookmark(bookmarkId);
+      const result = await window.electrons.deleteBookmark(bookmarkId);
       if (result.success) {
         if (isFolder && folder) {
-          const fetchedBookmarks = await getBookmarksByFolderId(Number(folder.id));
+          const fetchedBookmarks = await window.electrons.getBookmarksByFolderId(Number(folder.id));
           if ('error' in fetchedBookmarks) {
             toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
             return;
@@ -103,7 +99,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
           }
           setBookmarks(fetchedBookmarks);
         } else {
-          const allBookmarks = await getAllBookmarks();
+          const allBookmarks = await window.electrons.getAllBookmarks();
           if ('error' in allBookmarks) {
             toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
             return;
@@ -129,7 +125,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   useEffect(() => {
     const fetchFolders = async () => {
       try {
-        const fetchedFolders = await getFolders();
+        const fetchedFolders = await window.electrons.getFolders();
         if ('error' in fetchedFolders) {
           toast.error(`Error fetching folders: ${fetchedFolders.error}`);
           return;
@@ -179,7 +175,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   const handleAddTag = async () => {
     if (newTag.trim()) {
       try {
-        await addTag(bookmarkId, newTag.trim());
+        await window.electrons.addTag(bookmarkId, newTag.trim());
         setTagArray((prevTags) => [...prevTags, newTag.trim()]);
         setNewTag("");
         setIsAddingTag(false);
@@ -193,7 +189,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   const handleDeleteTag = async (tagToDelete: string) => {
     try {
-      const response = await DeleteTag(bookmarkId, tagToDelete);
+      const response = await window.electrons.DeleteTag(bookmarkId, tagToDelete);
       if (!response.success) { 
         toast.error(response.error)
         return;
@@ -208,8 +204,8 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   const handleTitleBlur = async () => {
     try {
-      await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
-      const allBookmarks = await getAllBookmarks();
+      await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
+      const allBookmarks = await window.electrons.getAllBookmarks();
       if ('error' in allBookmarks) {
         toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
         return;
@@ -230,8 +226,8 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
 
   const handleTextBlur = async () => {
     try {
-      await updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
-      const allBookmarks = await getAllBookmarks();
+      await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
+      const allBookmarks = await window.electrons.getAllBookmarks();
       if ('error' in allBookmarks) {
         toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
         return;
@@ -267,7 +263,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         <section className="w-full h-full ">
           <div className="flex flex-col items-center m-[100px] h-full ">
             {screenshot ? (
-              <Image
+              <img
                 src={`data:image/jpeg;base64,${screenshot}`}
                 alt={title || "Bookmark screenshot"}
                 width={600}
@@ -291,14 +287,13 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 <div className="mt-4 text-3xl text-[#a7b4c6] font-bold font-nunito text-center bg-transparent border-none focus:outline-none">
                   {bookmarkTitle}{" "}
                 </div>
-                <Link
+                <a
                   href={text}
-                  target="_blank"
                   rel="noopener noreferrer"
                   className="mt-2 text-[#7A889D] text-[13px] underline font-nunito"
                 >
                   VISIT ORIGINAL ARTICLE
-                </Link>
+                </a>
               </>
             )}
           </div>
@@ -316,14 +311,14 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                   // onBlur={handleTitleBlur}
                   autoFocus
                 />
-                <Link
+                <a
                   href={link}
-                  target="_blank"
+                  
                   rel="noopener noreferrer"
                   className="font-extralight "
                 >
                   {domain}
-                </Link>
+                </a>
               </>
             ) : (
               <Input

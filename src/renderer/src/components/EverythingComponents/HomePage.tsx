@@ -83,30 +83,30 @@ const EveryBookmark = () => {
     setBookmarkHeights(newHeights);
   }, [bookmarks]);
 
-  // useEffect(() => {
-  //   const fetchBookmarks = async () => {
-  //     try {
-  //       const fetchedBookmarks = await getAllBookmarks();
+  useEffect(() => {
+    const fetchBookmarks = async () => {
+      try {
+        const fetchedBookmarks = await window.electrons.getAllBookmarks();
 
-  //       if ("error" in fetchedBookmarks) {
-  //         // Handle error case
-  //         setError(fetchedBookmarks.error);
-  //         setBookmarks([]);
-  //       } else {
-  //         // Handle success case
-  //         setBookmarks(fetchedBookmarks);
-  //       }
-  //     } catch (err) {
-  //       setError(
-  //         err instanceof Error ? err.message : "An unknown error occurred"
-  //       );
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
+        if ("error" in fetchedBookmarks) {
+          // Handle error case
+          setError(fetchedBookmarks.error);
+          setBookmarks([]);
+        } else {
+          // Handle success case
+          setBookmarks(fetchedBookmarks);
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "An unknown error occurred"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  //   fetchBookmarks();
-  // }, []);
+    fetchBookmarks();
+  }, []);
 
   const handleAddToFolder = () => {
     setModal(true);
@@ -209,7 +209,7 @@ const EveryBookmark = () => {
             ))
           : displayedBookmarks.map((bookmark) => (
               <div key={bookmark.id}>
-                {/* <BookmarkModal
+                <BookmarkModal
                   screenshot={bookmark.screenshot}
                   text={bookmark.text}
                   key={bookmark.id}
@@ -221,7 +221,7 @@ const EveryBookmark = () => {
                   bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
                   setBookmarks={setBookmarks}
                   isFolder={false}
-                /> */}
+                />
               </div>
             ))}
       </Masonry>

@@ -67,3 +67,86 @@
     @apply bg-background text-foreground;
   }
 }
+
+.my-masonry-grid {
+  /* display: -webkit-box;
+  display: -ms-flexbox; */
+  display: flex;
+  margin-left: -30px; /* Adjust as needed */
+  width: auto;
+}
+.my-masonry-grid_column {
+  padding-left: 30px; /* Adjust as needed */
+  background-clip: padding-box;
+}
+.my-masonry-grid_column > div {
+  margin-bottom: 10px; /* Adjust as needed */
+}
+
+.scroll {
+  --overflow-gradient: linear-gradient(
+    180deg,
+    rgb(21 27 35 / 20%) 0%,
+    #14161e 100%
+  );
+  background: var(--overflow-gradient);
+}
+
+.Tldr {
+  position: relative;
+  padding: 16px;
+  border-radius: 9px;
+  background-color: #0f0f13;
+  margin: 16px;
+  min-height: 100px;
+}
+
+.Tldr::before {
+  content: "";
+  position: absolute;
+  top: -2.5px;
+  left: -2.5px;
+  right: -2.5px;
+  bottom: -2.5px;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #ed9ec0,
+    #93aeef,
+   
+    #93aeef,
+    #ed9ec0,
+    #ff3b21
+  );
+  border-radius: 9px;
+  padding: 2.5px; /* Adjust this for border width */
+}
+
+.Tldr::after {
+  content: "TLDR";
+  position: absolute;
+  top: -16px; /* Adjust as needed */
+  left: -12px; /* Adjust as needed */
+  background: #0f0f13;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: normal;
+  color: #b99164;
+  z-index: 1;
+}
+
+.header-gradient {
+  background: linear-gradient(180deg, rgba(40, 43, 54, 0.8) 20%, rgba(20, 22, 30, 0) 157%);
+}
+
+
+Input {
+  outline: none !important;
+  box-shadow: none !important;
+  
+}
+Input:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  
+}
