@@ -315,7 +315,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
             )}
           </div>
         </section>
-        <section className="w-[550px] rounded-lg overflow-hidden flex flex-col">
+        <section className="w-[550px] rounded-lg overflow-y-scroll  flex flex-col">
           <header className="w-full h-[95px] font-nunito py-4 px-[27px] flex flex-col justify-center text-[#a7b4c6] header-gradient ">
             {screenshot ? (
               <>
@@ -353,7 +353,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 <div className="top-left-text "></div>
                 Content here to ensure the div is visible
               </div>
-              <div className="overflow-scroll p-4">
+              <div className="overflow-scroll p-4 pb-0">
                 {screenshot && (
                   <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>
                 )}
@@ -428,7 +428,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 </div>
               </div>
             </div>
-            <div className="gap-3 h-[95px] relative flex items-end pb-4 justify-center ">
+            <div className="gap-3 bg-[#14161e] h-[95px] relative flex items-end pb-4 justify-center ">
               <div ref={folderSelectorRef} className="">
                 <div
                   onClick={() => setShowFolderSelector(!showFolderSelector)}
