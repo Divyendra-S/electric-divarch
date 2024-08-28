@@ -3,6 +3,7 @@ import React from "react";
 import { Bookmark, Folder } from "../../lib/schema";
 import { Button } from "../ui/button";
 import { cn } from "@renderer/lib/utils";
+import { toast } from "sonner";
 
 
 
@@ -30,7 +31,33 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   setBookmarks,
   isFolder
 }) => {
-  
+  const fetchAllBookmarks = async() => {
+    if (isFolder && folder ) {
+      const fetchedBookmarks = await window.electrons.getBookmarksByFolderId(Number(folder.id));
+      if ('error' in fetchedBookmarks) {
+        toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
+        return;
+      }
+      if (!setBookmarks) {
+        toast.error("SetBookmarks function is not defined");
+        return;
+      }
+      setBookmarks(fetchedBookmarks);
+    } else {
+      const allBookmarks = await window.electrons.getAllBookmarks();
+      if ('error' in allBookmarks) {
+        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+        return;
+      }
+      if (!setBookmarks) {
+        toast.error("SetBookmarks function is not defined");
+        return;
+      }
+      console.log(folder, 'folder')
+      setBookmarks(allBookmarks);
+    }
+  }
+  {console.log(folder,"goooslso")}
   return (
     <div className="absolute bottom-full left-0 w-[232px] max-h-[100px] bg-[#14161e]  rounded-lg shadow-lg border-2 translate-x-[30px] overflow-y-scroll translate-y-[30px] ">
       
@@ -40,7 +67,7 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
             key={folde.id}
             onClick={() => {
               onSelectFolder(folde.id) 
-            
+              fetchAllBookmarks()
           }}
             className="bg-[#14161e] text-[#a7b4c6] hover:bg-[#2a2b38] justify-start"
           >

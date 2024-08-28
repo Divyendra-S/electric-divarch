@@ -81,13 +81,32 @@ export function deleteBookmark(bookmarkId: number) {
   return { success: true }
 }
 export function getAllBookmarks() {
-  const stmt = db.prepare(`
-      SELECT Bookmark.*, Folder.name AS folderName
-      FROM Bookmark
-      LEFT JOIN Folder ON Bookmark.folderId = Folder.id
-      ORDER BY Bookmark.createdAt DESC
-    `)
-  return stmt.all()
+  const stmt :any = db.prepare(`
+    SELECT 
+      b.id, b.title, b.text, b.screenshot, b.tags, b.createdAt, b.folderId, b.aspectRatio,
+      f.id AS folder_id, f.name AS folder_name, f.createdAt AS folder_createdAt
+    FROM Bookmark b
+    LEFT JOIN Folder f ON b.folderId = f.id
+    ORDER BY b.createdAt DESC
+  `);
+
+  const bookmarks = stmt.all().map(row => ({
+    id: row.id,
+    title: row.title,
+    text: row.text,
+    screenshot: row.screenshot,
+    tags: row.tags,
+    createdAt: row.createdAt,
+    folderId: row.folderId,
+    aspectRatio: row.aspectRatio,
+    folder: row.folder_id ? {
+      id: row.folder_id,
+      name: row.folder_name,
+      createdAt: row.folder_createdAt
+    } : null
+  }));
+
+  return bookmarks;
 }
 export async function  searchBookmarks(tagsToSearch: string) {
   const stmt = db.prepare(`
