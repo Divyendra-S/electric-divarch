@@ -26,6 +26,8 @@ declare global {
       deleteFolder: (folderId: number) => Promise<any>;
       deleteBookmark: (bookmarkId: number) => Promise<any>;
       addBookmarkToFolder: (bookmarkId: number, folderId: number) => Promise<any>;
+      searchBookmarks: (tagsToSearch: string) => Promise<any>;
+      onWindowFocus: (callback) => void;
     };
   }
 }

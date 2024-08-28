@@ -764,10 +764,11 @@ export const setupIpcHandlers = () => {
 
   ipcMain.handle('search-bookmarks', async (_, tagsToSearch: string) => {
     try {
-      return searchBookmarks(tagsToSearch)
+      const bookmarks = await searchBookmarks(tagsToSearch)
+      return {success: bookmarks}
     } catch (error) {
       console.error('Error searching bookmarks:', error)
-      return []
+      return { error: 'Failed to search'}
     }
   })
 }

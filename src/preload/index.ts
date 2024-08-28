@@ -49,6 +49,8 @@ try {
     deleteBookmark: (bookmarkId: number) =>
       ipcRenderer.invoke('delete-bookmark', bookmarkId),
     addBookmarkToFolder: (bookmarkId: number, folderId: number) => ipcRenderer.invoke('add-bookmark-to-folder', bookmarkId, folderId),
+    searchBookmarks: (tagsToSearch: string) => ipcRenderer.invoke('search-bookmarks', tagsToSearch),
+    onWindowFocus: (callback) => ipcRenderer.on('window-focus', callback),
   });
 
   

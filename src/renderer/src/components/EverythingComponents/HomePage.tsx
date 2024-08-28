@@ -1,46 +1,47 @@
-import  { useEffect, useRef, useState } from "react";
-import Masonry from "react-masonry-css";
-import BookmarkForm from "./BookmarkForm";
-import BookmarkSearch from "./BookmarkSearch";
-import Navbar from "./Navbar";
+import { useEffect, useRef, useState } from 'react'
+import Masonry from 'react-masonry-css'
+import BookmarkForm from './BookmarkForm'
+import BookmarkSearch from './BookmarkSearch'
+import Navbar from './Navbar'
 // import { getAllBookmarks } from "@/actions/getAllBookmarks";
-import BookmarkModal from "./BookmarkModal";
+import BookmarkModal from './BookmarkModal'
 // import CreateFolderAndAddBookmarks from "@/actions/CreateFolderAndAddBookmarks";
-import { SkeletonCard } from "./SkeletonCard";
-import { Bookmark, Folder } from "../../lib/schema";
-import { cn } from "../../lib/utils";
-import ScreenshotComponent from "./ScreenshotComponent";
+import { SkeletonCard } from './SkeletonCard'
+import { Bookmark, Folder } from '../../lib/schema'
+import { cn } from '../../lib/utils'
+import ScreenshotComponent from './ScreenshotComponent'
 
 const getRandomHeightMultiplier = () => {
-  const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3];
-  return multipliers[Math.floor(Math.random() * multipliers.length)];
-};
+  const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3]
+  return multipliers[Math.floor(Math.random() * multipliers.length)]
+}
 
 const EveryBookmark = () => {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-  const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
+  const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [bookmarkHeights, setBookmarkHeights] = useState<{
-    [key: number]: number;
-  }>({});
-  const [modal, setModal] = useState<boolean>(false);
-  const [folderName, setFolderName] = useState<string>("");
-  const [searchString, setSearchString] = useState<boolean>(false);
-  const [isBookmarkFormFocused, setIsBookmarkFormFocused] = useState(false);
-  const [overlayOpacity, setOverlayOpacity] = useState(0);
-  const bookmarkFormRef = useRef<HTMLDivElement>(null);
+    [key: number]: number
+  }>({})
+  const [modal, setModal] = useState<boolean>(false)
+  const [folderName, setFolderName] = useState<string>('')
+  const [searchString, setSearchString] = useState<boolean>(false)
+  const [isBookmarkFormFocused, setIsBookmarkFormFocused] = useState(false)
+  const [overlayOpacity, setOverlayOpacity] = useState(0)
+  const [navId, setNavId] = useState(1)
+  const bookmarkFormRef = useRef<HTMLDivElement>(null)
 
   // ... other useEffect hooks and functions
   const handleBookmarkFormFocus = () => {
-    setIsBookmarkFormFocused(true);
+    setIsBookmarkFormFocused(true)
     // animateOverlay(0, 0.5, 300);
-  };
+  }
 
   const handleBookmarkFormBlur = () => {
-    setIsBookmarkFormFocused(false);
+    setIsBookmarkFormFocused(false)
     // animateOverlay(0.5, 0, 300);
-  };
+  }
 
   // const animateOverlay = (start: number, end: number, duration: number) => {
   //   const startTime = performance.now();
@@ -57,60 +58,58 @@ const EveryBookmark = () => {
   // };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        bookmarkFormRef.current &&
-        !bookmarkFormRef.current.contains(event.target as Node)
-      ) {
-        handleBookmarkFormBlur();
+      if (bookmarkFormRef.current && !bookmarkFormRef.current.contains(event.target as Node)) {
+        handleBookmarkFormBlur()
       }
-    };
+    }
 
     if (isBookmarkFormFocused) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isBookmarkFormFocused]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isBookmarkFormFocused])
 
   useEffect(() => {
-    const newHeights = bookmarks.reduce((acc, bookmark) => {
-      acc[bookmark.id] = getRandomHeightMultiplier();
-      return acc;
-    }, {} as { [key: number]: number });
+    const newHeights = bookmarks.reduce(
+      (acc, bookmark) => {
+        acc[bookmark.id] = getRandomHeightMultiplier()
+        return acc
+      },
+      {} as { [key: number]: number }
+    )
 
-    setBookmarkHeights(newHeights);
-  }, [bookmarks]);
+    setBookmarkHeights(newHeights)
+  }, [bookmarks])
 
   useEffect(() => {
     const fetchBookmarks = async () => {
       try {
-        const fetchedBookmarks = await window.electrons.getAllBookmarks();
+        const fetchedBookmarks = await window.electrons.getAllBookmarks()
 
-        if ("error" in fetchedBookmarks) {
+        if ('error' in fetchedBookmarks) {
           // Handle error case
-          setError(fetchedBookmarks.error);
-          setBookmarks([]);
+          setError(fetchedBookmarks.error)
+          setBookmarks([])
         } else {
           // Handle success case
-          setBookmarks(fetchedBookmarks);
+          setBookmarks(fetchedBookmarks)
         }
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "An unknown error occurred"
-        );
+        setError(err instanceof Error ? err.message : 'An unknown error occurred')
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchBookmarks();
-  }, []);
+    fetchBookmarks()
+  }, [])
 
   const handleAddToFolder = () => {
-    setModal(true);
-  };
+    setModal(true)
+  }
 
   // const handleCreateFolder = async () => {
   //   try {
@@ -126,15 +125,15 @@ const EveryBookmark = () => {
   //   }
   // };
 
-  const displayedBookmarks = searchString ? filteredBookmarks : bookmarks;
+  const displayedBookmarks = searchString ? filteredBookmarks : bookmarks
 
   const breakpointColumnsObj = {
     default: 6,
     1590: 5,
     1332: 4,
     1092: 3,
-    500: 2,
-  };
+    500: 2
+  }
 
   const overlayStyle = {
     background: `
@@ -149,13 +148,13 @@ const EveryBookmark = () => {
       )
     `,
     opacity: overlayOpacity,
-    transition: "opacity 0.3s ease-in-out",
-    pointerEvents: "none" as const,
-  };
+    transition: 'opacity 0.3s ease-in-out',
+    pointerEvents: 'none' as const
+  }
 
   return (
     <div className="bg-[#14161e] min-h-screen px-[80px]">
-      <Navbar />
+      <Navbar setNavId={setNavId} navId={navId} />
 
       <BookmarkSearch
         setFilteredBookmarks={setFilteredBookmarks}
@@ -190,9 +189,9 @@ const EveryBookmark = () => {
         <div
           ref={bookmarkFormRef}
           className={cn(
-            "relative z-20 hover:ring-4 ring-[#33384e] transition-all duration-100   rounded-md mb-5",
+            'relative z-20 hover:ring-4 ring-[#33384e] transition-all duration-100   rounded-md mb-5',
             {
-              "ring-4 ring-[#33384e]": isBookmarkFormFocused,
+              'ring-4 ring-[#33384e]': isBookmarkFormFocused
             }
           )}
         >
@@ -204,9 +203,7 @@ const EveryBookmark = () => {
         </div>
 
         {isLoading
-          ? Array.from({ length: 10 }).map((_, index) => (
-              <SkeletonCard key={index} />
-            ))
+          ? Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
           : displayedBookmarks.map((bookmark) => (
               <div key={bookmark.id}>
                 <BookmarkModal
@@ -257,7 +254,7 @@ const EveryBookmark = () => {
         </div>
       )} */}
     </div>
-  );
-};
+  )
+}
 
-export default EveryBookmark;
+export default EveryBookmark

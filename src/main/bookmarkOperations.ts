@@ -89,7 +89,7 @@ export function getAllBookmarks() {
     `)
   return stmt.all()
 }
-export function searchBookmarks(tagsToSearch: string) {
+export async function  searchBookmarks(tagsToSearch: string) {
   const stmt = db.prepare(`
       SELECT Bookmark.*, Folder.name AS folderName
       FROM Bookmark

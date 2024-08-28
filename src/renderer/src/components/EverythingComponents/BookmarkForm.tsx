@@ -19,27 +19,27 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
     setIsLoading(true);
     try {
       // const response = await window.electrons.createBookmark(text)
-      const bookmarkss = await window.electrons.createBookmarkWithScreenshot(text)
+      const response = await window.electrons.createBookmarkWithScreenshot(text)
       // const bookmark = await window.electrons.getAllBookmarks()
       // // await window.electrons.fetchOgimage('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
       // const tags = await window.electrons.createTags('https://www.prisma.io/docs/orm/prisma-schema/data-model/models')
-      // if(!response) console.log("Error creating bookmark");
-      // if (!response?.message) {
-      //   toast.error(response?.error);
-      // }
-      // toast.success(response?.message);
-      toast.success("Bookmark created successfully")
-      // const allBookmarks = await getAllBookmarks();
+      if(!response) console.log("Error creating bookmark");
+      if (!response?.message) {
+        toast.error(response?.error);
+      }
+      toast.success(response?.message);
+      
+      const allBookmarks = await window.electrons.getAllBookmarks();
 
-      // if ("error" in allBookmarks) {
-      //   // Handle error case
-      //   console.error("Error fetching bookmarks:", allBookmarks.error);
-      //   // Optionally, you can set an error state here if you have one
-      //   // setError(allBookmarks.error);
-      // } else {
-      //   // Handle success case
-      //   setBookmarks(allBookmarks);
-      // }
+      if ("error" in allBookmarks) {
+        // Handle error case
+        console.error("Error fetching bookmarks:", allBookmarks.error);
+        // Optionally, you can set an error state here if you have one
+        // setError(allBookmarks.error);
+      } else {
+        // Handle success case
+        setBookmarks(allBookmarks);
+      }
       setText("");
     } catch (error) {
       console.error("Error creating bookmark:", error);

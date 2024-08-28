@@ -5,19 +5,22 @@ import React from 'react';
 import { cn } from '../../lib/utils';
 
 interface NavItemProps {
-  href: string;
+  id: number;
   label: string;
+  setNavId: React.Dispatch<React.SetStateAction<number>>;
+  navId: number;
 }
 
-const getBasePath = (path: string) => {
-  const segments = path.split('/');
-  return segments.length > 1 ? `/${segments[1]}` : path;
-};
+// const getBasePath = (path: string) => {
+//   const segments = path.split('/');
+//   return segments.length > 1 ? `/${segments[1]}` : path;
+// };
 
-const NavItem: React.FC<NavItemProps> = ({ href, label }) => {
+const NavItem: React.FC<NavItemProps> = ({ 
+  id, label, setNavId, navId }) => {
 
   // const isActive = getBasePath(pathname) === getBasePath(href);
-  const isActive = false;
+  const isActive = navId == id;
   return (
     <div className="relative">
       <div
@@ -26,9 +29,11 @@ const NavItem: React.FC<NavItemProps> = ({ href, label }) => {
           isActive ? 'opacity-100' : 'opacity-0'
         )}
       ></div>
-      <a href={href} className={cn('ml-[30px] cursor-pointer', isActive ? 'text-[#cee2ff]' : 'text-[#748297]')}>
+      <span onClick={() => {
+        setNavId(id);
+      }}  className={cn('ml-[30px] cursor-pointer', isActive ? 'text-[#cee2ff]' : 'text-[#748297]')}>
         {label}
-      </a>
+      </span>
     </div>
   );
 };

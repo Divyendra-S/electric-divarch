@@ -115,6 +115,9 @@ function createWindow(): void {
     }
   })
 
+  mainWindow.on('focus', () => {
+    mainWindow.webContents.send('window-focus');
+  });
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -129,8 +132,11 @@ function createWindow(): void {
   // HMR for renderer based on electron-vite CLI.
   // Load the remote URL for development or the local HTML file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    console.log('using dev-vite')
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    console.log('using dev-vite2222')
   } else {
+    console.log('html')
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
