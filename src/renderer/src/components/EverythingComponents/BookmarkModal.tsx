@@ -33,6 +33,7 @@ type BookmarkCardProps = {
   bookmarkHeights: number;
   isFolder?: boolean;
   setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
 
 const BookmarkModal: React.FC<BookmarkCardProps> = ({
@@ -45,6 +46,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   modal,
   bookmarkHeights,
   setBookmarks,
+  setFolderBookmarks, 
   isFolder,
 }) => {
   const link = text;
@@ -93,11 +95,12 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
             toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
             return;
           }
-          if (!setBookmarks) {
+          if (!setFolderBookmarks) {
             toast.error("SetBookmarks function is not defined");
             return;
           }
-          setBookmarks(fetchedBookmarks);
+          setFolderBookmarks(fetchedBookmarks);
+          
         } else {
           const allBookmarks = await window.electrons.getAllBookmarks();
           if ('error' in allBookmarks) {
@@ -110,6 +113,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
           }
           setBookmarks(allBookmarks);
         }
+        
         setIsOpen(false);
         toast.success("Bookmark deleted successfully");
       } else {
@@ -119,6 +123,19 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     } catch (error) {
       console.error("Error deleting bookmark:", error);
       toast.error("An error occurred while deleting bookmark");
+    } finally {
+      
+        const allBookmarks = await window.electrons.getAllBookmarks();
+        if ('error' in allBookmarks) {
+          toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+          return;
+        }
+        if (!setBookmarks) {
+          toast.error("SetBookmarks function is not defined");
+          return;
+        }
+        setBookmarks(allBookmarks);
+      
     }
   };
 

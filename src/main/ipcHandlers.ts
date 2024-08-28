@@ -1,4 +1,4 @@
-import { ipcMain, net } from 'electron'
+import { BrowserWindow, ipcMain, net } from 'electron'
 import Groq from 'groq-sdk'
 import {
   createFolder,
@@ -160,6 +160,8 @@ function fetchImageAsBase64(url: string): Promise<string> {
   })
 }
 
+
+
 function truncateHtml(html: string, maxLength: number = 1000): string {
   if (html.length <= maxLength) return html
   return html.substring(0, maxLength) + '...'
@@ -167,9 +169,52 @@ function truncateHtml(html: string, maxLength: number = 1000): string {
 
 export const setupIpcHandlers = () => {
   
+  async function fetchHtmlWithWindow(url: string): Promise<string> {
+    const win = new BrowserWindow({
+      width: 1280,
+      height: 800,
+      show: false, // Hide the window
+    });
+  
+    await win.loadURL(url);
+  
+    // Get the HTML content of the page
+    const html = await win.webContents.executeJavaScript('document.documentElement.outerHTML');
+  
+    // Clean up the BrowserWindow
+    win.close();
+  
+    return html;
+  }
+  async function captureScreenshotAsBase64(url: string): Promise<string> {
+    const win = new BrowserWindow({
+      width: 1280,
+      height: 800,
+      show: false,
+    });
+  
+    await win.loadURL(url);
+  
+    // Capture the screenshot
+    const screenshot = await win.webContents.capturePage();
+  
+    // Convert the screenshot to a base64 string
+    const base64Image = screenshot.toDataURL().split(',')[1];
+  
+    win.close();
+  
+    return base64Image;
+  }
+
   async function fetchOgImageAndSave(url: string) {
     try {
-      const html = await fetchHtml(url)
+      let html;
+    try {
+      html = await fetchHtml(url);
+    } catch (netError) {
+      console.warn('Failed to fetch HTML with net.request, falling back to BrowserWindow:', netError);
+      html = await fetchHtmlWithWindow(url);
+    }
       const options = { html, url }
       const data = await ogs(options)
       const { error, result } = data
@@ -182,13 +227,17 @@ export const setupIpcHandlers = () => {
       console.log('OGS Result:', result)
 
       // Check if ogImage exists and handle it as an array
-      const ogImageUrl = result.ogImage?.[0]?.url
-      if (!ogImageUrl) {
-        throw new Error('No OG image found')
-      }
-
+      const ogImageUrl = result?.ogImage?.[0]?.url
+      
+let base64Image
       // Fetch the OG image and convert it to base64
-      const base64Image = await fetchImageAsBase64(ogImageUrl)
+      if (ogImageUrl) {
+        // Fetch the OG image and convert it to base64
+        base64Image = await fetchImageAsBase64(ogImageUrl);
+      } else {
+        // If no OG image, capture a screenshot of the webpage
+        base64Image = await captureScreenshotAsBase64(url);
+      }
 
       // Save the base64 image in the database using Prisma
 

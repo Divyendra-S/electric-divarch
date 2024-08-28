@@ -420,6 +420,7 @@ const EveryBookmark = () => {
             navId={navId}
             setNavId={handleNavigation}
             setFolderId={setFolderId}
+            setBookmarks={setBookmarks}
           />
         ) : null
       default:

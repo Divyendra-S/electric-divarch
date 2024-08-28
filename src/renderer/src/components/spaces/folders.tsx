@@ -14,8 +14,8 @@ const getRandomHeightMultiplier = () => {
   return multipliers[Math.floor(Math.random() * multipliers.length)]
 }
 
-const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
+const FolderPage = ({ folderId, navId, setNavId, setFolderId,setBookmarks }) => {
+  const [folderBookmarks, setFolderBookmarks] = useState<Bookmark[]>([])
   const [folder, setFolder] = useState<Folder | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -28,12 +28,12 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
 
   useEffect(() => {
     const fetchBookmarks = async () => {
-        if (!folderId) {
-            setBookmarks([]);
-            setFolder(null);
-            setIsLoading(false);
-            return;
-          }
+      if (!folderId) {
+        setFolderBookmarks([])
+        setFolder(null)
+        setIsLoading(false)
+        return
+      }
 
       try {
         const fetchedFolder = await window.electrons.getFolderById(Number(folderId))
@@ -52,10 +52,10 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
         if ('error' in fetchedBookmarks) {
           // Handle error case
           setError(fetchedBookmarks.error)
-          setBookmarks([])
+          setFolderBookmarks([])
         } else {
           // Handle success case
-          setBookmarks(fetchedBookmarks)
+          setFolderBookmarks(fetchedBookmarks)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
@@ -67,7 +67,7 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
     fetchBookmarks()
   }, [folderId])
   useEffect(() => {
-    const newHeights = bookmarks.reduce(
+    const newHeights = folderBookmarks.reduce(
       (acc, bookmark) => {
         acc[bookmark.id] = getRandomHeightMultiplier()
         return acc
@@ -76,7 +76,7 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
     )
 
     setBookmarkHeights(newHeights)
-  }, [bookmarks])
+  }, [folderBookmarks])
 
   const handleFolderNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFolderName(event.target.value)
@@ -100,11 +100,11 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
     1092: 3,
     500: 2
   }
-  if (!folderId) return null;
+  if (!folderId) return null
   if (error) return <div>Error: {error}</div>
 
   return (
-    <div className="bg-[#14161e] min-h-screen px-[80px]">
+    <div className="bg-[#14161e] min-h-screen ">
       {/* <Navbar navId={navId} setNavId={setNavId}/> */}
       <main className="">
         <div className="flex items-center mb-4">
@@ -144,7 +144,7 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
         >
           {isLoading
             ? Array.from({ length: 12 }).map((_, index) => <SkeletonCard key={index} />)
-            : bookmarks.map((bookmark) => (
+            : folderBookmarks.map((bookmark) => (
                 <div key={bookmark.id} className="">
                   <BookmarkModal
                     screenshot={bookmark.screenshot}
@@ -155,8 +155,9 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId }) => {
                     bookmarkId={bookmark.id}
                     title={bookmark.title}
                     tags={bookmark.tags}
-                    bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                    setBookmarks={setBookmarks}
+                        bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                        setBookmarks={setBookmarks}
+                    setFolderBookmarks={setFolderBookmarks}
                     isFolder={isFolder}
                   />
                 </div>
