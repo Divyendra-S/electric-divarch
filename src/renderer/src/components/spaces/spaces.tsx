@@ -20,7 +20,7 @@ interface Folder {
   
 }
 
-const Spaces = ({setNavId,navId}) => {
+const Spaces = ({setNavId,navId,setFolderId}) => {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +38,7 @@ const Spaces = ({setNavId,navId}) => {
         setFolders([]);
       } else {
         // Handle success case
+        console.log(fetchedFolders);
         setFolders(fetchedFolders);
       }
     } catch (err) {
@@ -79,7 +80,7 @@ const Spaces = ({setNavId,navId}) => {
 
   return (
     <div className="bg-[#14161e] min-h-screen ">
-      <Navbar setNavId={setNavId} navId={navId} />
+      {/* <Navbar setNavId={setNavId} navId={navId} /> */}
       <main className="">
         <div className="relative w-full mt-[30px]">
           <input
@@ -108,8 +109,10 @@ const Spaces = ({setNavId,navId}) => {
           {isLoading
             ? Array.from({ length: 12 }).map((_, index) => <SkeletonCard key={index} />)
             : folders.map((folder) => (
-                <div key={folder.id} className="shadow-md overflow-hidden rounded-lg">
-                  <a href={`/spaces/${folder.id}`}>
+              <div onClick={() => {
+                setFolderId(folder.id);
+                }} key={folder.id} className="shadow-md overflow-hidden rounded-lg">
+                  <div>
                     <div className="cursor-pointer">
                       {folder.firstBookmark && folder.firstBookmark.screenshot ? (
                         <div style={{ position: 'relative'}} className=" aspect-video">
@@ -130,7 +133,7 @@ const Spaces = ({setNavId,navId}) => {
                         </h3>
                       </div>
                     </div>
-                  </a>
+                  </div>
                 </div>
               ))}
         </div>

@@ -584,7 +584,7 @@ export const setupIpcHandlers = () => {
       return getFolderByBookmarkId(bookmarkId)
     } catch (error) {
       console.error('Error fetching folder by bookmark id:', error)
-      return null
+      return {error:'Error fetching folder'}
     }
   })
 
@@ -593,7 +593,7 @@ export const setupIpcHandlers = () => {
       return getBookmarksByFolderId(folderId)
     } catch (error) {
       console.error('Error fetching bookmarks:', error)
-      return []
+      return {error:'Error fetching bookmarks'}
     }
   })
 
@@ -703,13 +703,13 @@ export const setupIpcHandlers = () => {
         const getBookmark = db.prepare('SELECT * FROM Bookmark WHERE id = ?')
         const bookmark = getBookmark.get(result.lastInsertRowid)
         console.log(bookmark)
-        return bookmark
+        return {message: "bookmark created successfully"}
       } else {
-        throw new Error('Failed to insert bookmark')
+        throw new Error('Failed to create bookmark')
       }
     } catch (error) {
       console.error('Error creating bookmark:', error)
-      return null
+      return {error: "Failed to create bookmark"}
     }
   })
   ipcMain.handle('add-tag', async (_, bookmarkId: number, newTag: string) => {

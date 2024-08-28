@@ -6,11 +6,11 @@ const navItems = [
   { id: 2, label: 'Spaces' },
   { id: 3, label: 'Serendipity' }
 ]
-type NavbarProps = {
-  setNavId: React.Dispatch<React.SetStateAction<number>>,
-  navId: number;
-}
-const Navbar = ({ setNavId,navId }: NavbarProps) => {
+// type NavbarProps = {
+//   setNavId: React.Dispatch<React.SetStateAction<number>>,
+//   navId: number;
+// }
+const Navbar = ({ setNavId,navId }) => {
   return (
     <div className="h-9 flex justify-end w-full font-nunito font-light text-lg text-[19px] pt-[10px]">
       {navItems.map((item) => (

@@ -1,15 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { TakeScreenshot } from "@/actions/Screenshot";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import Image from "next/image";
-import { analyzeContentAndURL, generatTags } from "@/app/Tags/actions";
-import CreateBookmark from "@/actions/CreateBookmark";
+
+
+
 import { toast } from "sonner";
-import { Bookmark } from "@/lib/schema";
-import { getAllBookmarks } from "@/actions/getAllBookmarks";
+import { Bookmark } from "../../lib/schema";
+
 
 type ScreenshotResponse = {
   screenshot?: string | undefined;
@@ -42,17 +39,8 @@ export default function ScreenshotComponent({setBookmarks}:ScreenshotComponentPr
         toast.error("Invalid URL");
         return;
       }
-      const screenshotRes: ScreenshotResponse | ErrorResponse =
-        await TakeScreenshot(url);
-      await saveBookmark();
-      if ("error" in screenshotRes) {
-        setResult({ error: screenshotRes.error });
-      } else {
-        setResult({
-          screenshot: screenshotRes.screenshot,
-          html: screenshotRes.html,
-        });
-      }
+      saveBookmark();
+      
     } catch (error) {
       setResult({ error: (error as Error).message });
     } finally {
@@ -68,11 +56,11 @@ export default function ScreenshotComponent({setBookmarks}:ScreenshotComponentPr
     const loadingToast = toast.loading("Saving bookmark...");
     
     try {
-      const response = await CreateBookmark({ url });
+      const response = await window.electrons.createBookmarkWithScreenshot(url)
       if (!response?.message) {
         toast.error(response?.error);
       } else {
-        const allBookmarks = await getAllBookmarks();
+        const allBookmarks = await window.electrons.getAllBookmarks();
         if ("error" in allBookmarks) {
           console.error("Error fetching bookmarks:", allBookmarks.error);
           // Optionally, you can set an error state here if you have one
@@ -93,34 +81,34 @@ export default function ScreenshotComponent({setBookmarks}:ScreenshotComponentPr
     }
   };
 
-  const handleGenerateTags = async () => {
-    if (!result?.html) return;
+  // const handleGenerateTags = async () => {
+  //   if (!result?.html) return;
 
-    setTagsLoading(true);
+  //   setTagsLoading(true);
 
-    try {
-      // Generate tags
+  //   try {
+  //     // Generate tags
 
-      const tagsRes:
-        | { tags: string; title: string; error?: string }
-        | undefined = await generatTags(result.html, url);
-      if (!tagsRes) {
-        return { message: "No tags" };
-      }
-      setResult((prevResult) => ({
-        ...prevResult,
-        tags: tagsRes?.tags,
-        title: tagsRes?.title,
-      }));
-    } catch (error) {
-      setResult((prevResult) => ({
-        ...prevResult,
-        error: (error as Error).message,
-      }));
-    } finally {
-      setTagsLoading(false);
-    }
-  };
+  //     const tagsRes:
+  //       | { tags: string; title: string; error?: string }
+  //       | undefined = await generatTags(result.html, url);
+  //     if (!tagsRes) {
+  //       return { message: "No tags" };
+  //     }
+  //     setResult((prevResult) => ({
+  //       ...prevResult,
+  //       tags: tagsRes?.tags,
+  //       title: tagsRes?.title,
+  //     }));
+  //   } catch (error) {
+  //     setResult((prevResult) => ({
+  //       ...prevResult,
+  //       error: (error as Error).message,
+  //     }));
+  //   } finally {
+  //     setTagsLoading(false);
+  //   }
+  // };
 
   return (
     <div>

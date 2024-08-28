@@ -49,17 +49,32 @@ export function updateFolderName(folderId: number, newName: string): { success: 
   return { success: true };
 }
 
-export function getFoldersWithFirstBookmark(): FolderWithFirstBookmark[] {
-  const stmt = db.prepare(`
-    SELECT Folder.id, Folder.name, Folder.createdAt,
-           (SELECT Bookmark.id FROM Bookmark WHERE Bookmark.folderId = Folder.id LIMIT 1) AS firstBookmarkId
+export function getFoldersWithFirstBookmark() {
+  const foldersStmt = db.prepare(`
+    SELECT id, name, createdAt
     FROM Folder
+    ORDER BY id
   `);
-  const folders:any = stmt.all();
-  return folders.map((folder) => ({
-    ...folder,
-    firstBookmark: folder.firstBookmarkId ? { id: folder.firstBookmarkId } : null,
-  }));
+  const folders:any = foldersStmt.all();
+
+  // Then, for each folder, get the first bookmark (if any)
+  const firstBookmarkStmt = db.prepare(`
+    SELECT id, title, text, screenshot, tags, createdAt, folderId, aspectRatio
+    FROM Bookmark
+    WHERE folderId = ?
+    ORDER BY id
+    LIMIT 1
+  `);
+
+  return folders.map(folder => {
+    const firstBookmark = firstBookmarkStmt.get(folder.id);
+    return {
+      id: folder.id,
+      name: folder.name,
+      createdAt: folder.createdAt,
+      firstBookmark: firstBookmark || null
+    };
+  });
 }
 
 export function createFolder(folderName: string): { success?: { id: number; name: string }; error?: string } {

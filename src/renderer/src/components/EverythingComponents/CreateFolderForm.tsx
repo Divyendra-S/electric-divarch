@@ -1,7 +1,7 @@
-"use client";
+
 
 import { useState } from "react";
-import { CreateFolder } from "@/actions/CreateFolder";
+
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ export default function CreateFolderForm() {
     setResult(null);
 
     try {
-      const folder = await CreateFolder(folderName);
+      const folder = await window.electrons.createFolder(folderName);
       if (!folder.success) {
         toast.error(folder.error)
         return;
