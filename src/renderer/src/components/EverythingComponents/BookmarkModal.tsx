@@ -446,6 +446,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                       BookmarkId={bookmarkId}
                       setBookmarks={setBookmarks}
                       isFolder={isFolder}
+                      setFolderBookmarks={setFolderBookmarks}
                     />
                   </div>
                 )}

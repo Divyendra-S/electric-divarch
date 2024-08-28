@@ -429,6 +429,7 @@ const EveryBookmark = () => {
             <BookmarkSearch
               setFilteredBookmarks={setFilteredBookmarks}
               setSearchString={setSearchString}
+              setBookmarks={setBookmarks}
             />
             {modal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

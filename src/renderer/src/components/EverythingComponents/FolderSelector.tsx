@@ -20,6 +20,7 @@ interface FolderSelectorProps {
   BookmarkId: number;
   setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   isFolder?: boolean;
+  setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
 
 const FolderSelector: React.FC<FolderSelectorProps> = ({
@@ -29,7 +30,8 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   folder,
   BookmarkId,
   setBookmarks,
-  isFolder
+  isFolder,
+  setFolderBookmarks
 }) => {
   const fetchAllBookmarks = async() => {
     if (isFolder && folder ) {
@@ -38,12 +40,11 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
         toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
         return;
       }
-      if (!setBookmarks) {
+      if (!setFolderBookmarks) {
         toast.error("SetBookmarks function is not defined");
         return;
       }
-      setBookmarks(fetchedBookmarks);
-    } else {
+      setFolderBookmarks(fetchedBookmarks);
       const allBookmarks = await window.electrons.getAllBookmarks();
       if ('error' in allBookmarks) {
         toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);

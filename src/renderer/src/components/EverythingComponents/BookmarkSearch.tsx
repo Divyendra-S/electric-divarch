@@ -9,6 +9,7 @@ import { debounce } from 'lodash';
 interface BookmarkSearchProps {
   setFilteredBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   setSearchString: React.Dispatch<React.SetStateAction<boolean>>;
+  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
 
 const FocusedInput: React.FC<{
@@ -16,6 +17,7 @@ const FocusedInput: React.FC<{
   onChange: (value: string) => void;
   placeholder: string;
   className: string;
+  
 }> = ({ value, onChange, placeholder, className }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -54,6 +56,7 @@ const FocusedInput: React.FC<{
 const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
   setFilteredBookmarks,
   setSearchString,
+  setBookmarks
 }) => {
   const [tags, setTags] = useState<string>("");
   const [filteredBookmarks, setLocalFilteredBookmarks] = useState<Bookmark[]>(
@@ -158,8 +161,19 @@ const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
         setFolderName("");
       } else {
         toast.success("Folder created and bookmarks added successfully");
+        const allBookmarks = await window.electrons.getAllBookmarks();
+        if ('error' in allBookmarks) {
+          toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+          return;
+        }
+        if (!setBookmarks) {
+          toast.error("SetBookmarks function is not defined");
+          return;
+        }
+        setBookmarks(allBookmarks);
         setIsOpen(false);
         setFolderName("");
+        setTags("")
       }
     } catch (error) {
       console.error("Error creating folder and adding bookmarks:", error);

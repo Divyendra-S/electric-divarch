@@ -751,7 +751,7 @@ let base64Image
         // Fetch the created bookmark
         const getBookmark = db.prepare('SELECT * FROM Bookmark WHERE id = ?')
         const bookmark = getBookmark.get(result.lastInsertRowid)
-        console.log(bookmark)
+        // console.log(bookmark)  
         return {message: "bookmark created successfully"}
       } else {
         throw new Error('Failed to create bookmark')
@@ -803,7 +803,7 @@ let base64Image
   ipcMain.handle('get-all-bookmarks', async () => {
     try {
       const bookmarkss = await getAllBookmarks();
-      console.log(bookmarkss,"bookmarksssososos")
+      // console.log(bookmarkss,"bookmarksssososos")
       return bookmarkss
     } catch (error) {
       console.error('Error fetching bookmarks:', error)
