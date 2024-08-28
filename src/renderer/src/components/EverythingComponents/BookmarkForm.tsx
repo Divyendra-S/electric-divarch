@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-// import CreateBookmark from "@/actions/CreateBookmark";
-// import { getAllBookmarks } from "@/actions/getAllBookmarks";
+
 import { toast } from "sonner";
 import { Bookmark, Folder } from "../../lib/schema";
 import { Button } from "../ui/button";

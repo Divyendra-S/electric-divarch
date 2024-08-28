@@ -78,7 +78,7 @@ const Spaces = ({setNavId,navId}) => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="bg-[#14161e] min-h-screen px-[80px]">
+    <div className="bg-[#14161e] min-h-screen ">
       <Navbar setNavId={setNavId} navId={navId} />
       <main className="">
         <div className="relative w-full mt-[30px]">

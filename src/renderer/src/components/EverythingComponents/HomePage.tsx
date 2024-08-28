@@ -10,6 +10,8 @@ import { SkeletonCard } from './SkeletonCard'
 import { Bookmark, Folder } from '../../lib/schema'
 import { cn } from '../../lib/utils'
 import ScreenshotComponent from './ScreenshotComponent'
+import Spaces from '../spaces/spaces'
+import Serendipity from '../serendipity/serendipity'
 
 const getRandomHeightMultiplier = () => {
   const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3]
@@ -111,19 +113,19 @@ const EveryBookmark = () => {
     setModal(true)
   }
 
-  // const handleCreateFolder = async () => {
-  //   try {
-  //     await CreateFolderAndAddBookmarks(
-  //       folderName,
-  //       filteredBookmarks.map((bm) => bm.id)
-  //     );
-  //     setFolderName("");
-  //     setModal(false);
-  //     // Refresh bookmarks if needed
-  //   } catch (err) {
-  //     console.error("Failed to create folder and add bookmarks:", err);
-  //   }
-  // };
+  const handleCreateFolder = async () => {
+    try {
+      await window.electrons.createFolderAndAddBookmarks(
+        folderName,
+        filteredBookmarks.map((bm) => bm.id)
+      )
+      setFolderName('')
+      setModal(false)
+      // Refresh bookmarks if needed
+    } catch (err) {
+      console.error('Failed to create folder and add bookmarks:', err)
+    }
+  }
 
   const displayedBookmarks = searchString ? filteredBookmarks : bookmarks
 
@@ -154,74 +156,82 @@ const EveryBookmark = () => {
 
   return (
     <div className="bg-[#14161e] min-h-screen px-[80px]">
-      <Navbar setNavId={setNavId} navId={navId} />
-
-      <BookmarkSearch
-        setFilteredBookmarks={setFilteredBookmarks}
-        setSearchString={setSearchString}
-      />
-      {/* <ScreenshotComponent setBookmarks={setBookmarks} /> */}
-      {modal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-4 rounded-md">
-            <h2 className="text-xl mb-4">Create New Folder</h2>
-            <input
-              type="text"
-              value={folderName}
-              onChange={(e) => setFolderName(e.target.value)}
-              placeholder="Folder Name"
-              className="border p-2 rounded-md mb-4 w-full"
-            />
-            <button
-              // onClick={handleCreateFolder}
-              className="bg-blue-500 text-white p-2 rounded-md"
-            >
-              Create Folder
-            </button>
-          </div>
-        </div>
-      )}
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
-        <div
-          ref={bookmarkFormRef}
-          className={cn(
-            'relative z-20 hover:ring-4 ring-[#33384e] transition-all duration-100   rounded-md mb-5',
-            {
-              'ring-4 ring-[#33384e]': isBookmarkFormFocused
-            }
-          )}
-        >
-          <BookmarkForm
-            setBookmarks={setBookmarks}
-            onFocus={handleBookmarkFormFocus}
-            onBlur={handleBookmarkFormBlur}
+      {navId == 2 ? (
+        <Spaces navId={navId} setNavId={setNavId} />
+      ) : navId ==3 ? (
+        <Serendipity navId={navId} setNavId={setNavId} />
+      ) : (
+        <>
+          <Navbar setNavId={setNavId} navId={navId} />
+          <BookmarkSearch
+            setFilteredBookmarks={setFilteredBookmarks}
+            setSearchString={setSearchString}
           />
-        </div>
-
-        {isLoading
-          ? Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
-          : displayedBookmarks.map((bookmark) => (
-              <div key={bookmark.id}>
-                <BookmarkModal
-                  screenshot={bookmark.screenshot}
-                  text={bookmark.text}
-                  key={bookmark.id}
-                  folder={bookmark.folder}
-                  modal={modal}
-                  bookmarkId={bookmark.id}
-                  title={bookmark.title}
-                  tags={bookmark.tags}
-                  bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                  setBookmarks={setBookmarks}
-                  isFolder={false}
+           {/* <ScreenshotComponent setBookmarks={setBookmarks} /> */}
+          {modal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+              <div className="bg-white p-4 rounded-md">
+                <h2 className="text-xl mb-4">Create New Folder</h2>
+                <input
+                  type="text"
+                  value={folderName}
+                  onChange={(e) => setFolderName(e.target.value)}
+                  placeholder="Folder Name"
+                  className="border p-2 rounded-md mb-4 w-full"
                 />
+                <button
+                  onClick={handleCreateFolder}
+                  className="bg-blue-500 text-white p-2 rounded-md"
+                >
+                  Create Folder
+                </button>
               </div>
-            ))}
-      </Masonry>
+            </div>
+          )}
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column"
+          >
+            <div
+              ref={bookmarkFormRef}
+              className={cn(
+                'relative z-20 hover:ring-4 ring-[#33384e] transition-all duration-100   rounded-md mb-5',
+                {
+                  'ring-4 ring-[#33384e]': isBookmarkFormFocused
+                }
+              )}
+            >
+              <BookmarkForm
+                setBookmarks={setBookmarks}
+                onFocus={handleBookmarkFormFocus}
+                onBlur={handleBookmarkFormBlur}
+              />
+            </div>
+
+            {isLoading
+              ? Array.from({ length: 10 }).map((_, index) => <SkeletonCard key={index} />)
+              : displayedBookmarks.map((bookmark) => (
+                  <div key={bookmark.id}>
+                    <BookmarkModal
+                      screenshot={bookmark.screenshot}
+                      text={bookmark.text}
+                      key={bookmark.id}
+                      folder={bookmark.folder}
+                      modal={modal}
+                      bookmarkId={bookmark.id}
+                      title={bookmark.title}
+                      tags={bookmark.tags}
+                      bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
+                      setBookmarks={setBookmarks}
+                      isFolder={false}
+                    />
+                  </div>
+                ))}
+          </Masonry>
+        </>
+      )}
+
       {isBookmarkFormFocused && (
         <>
           {/* Overlay to the right */}
