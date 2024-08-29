@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { cn } from "@renderer/lib/utils";
 import { toast } from "sonner";
 import { useAtom } from "jotai";
-import { bookmarksAtom } from "@renderer/lib/atoms";
+import { bookmarksAtom, folderBookmarksAtom } from "@renderer/lib/atoms";
 
 
 
@@ -22,7 +22,7 @@ interface FolderSelectorProps {
   BookmarkId: number;
   // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   isFolder?: boolean;
-  setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  // setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
 
 const FolderSelector: React.FC<FolderSelectorProps> = ({
@@ -33,8 +33,9 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   BookmarkId,
   // setBookmarks,
   isFolder,
-  setFolderBookmarks
+  // setFolderBookmarks
 }) => {
+  const [, setFolderBookmarks] = useAtom(folderBookmarksAtom)
   const [, setBookmarks] = useAtom(bookmarksAtom)
   const fetchAllBookmarks = async() => {
     if (isFolder && folder) {

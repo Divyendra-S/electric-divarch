@@ -18,7 +18,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@renderer/lib/utils";
 import { useAtom } from "jotai";
-import { bookmarksAtom } from "@renderer/lib/atoms";
+import { bookmarksAtom, folderBookmarksAtom } from "@renderer/lib/atoms";
 
 
 
@@ -35,7 +35,7 @@ type BookmarkCardProps = {
   bookmarkHeights: number;
   isFolder?: boolean;
   // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
-  setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  // setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
 
 const BookmarkModal: React.FC<BookmarkCardProps> = ({
@@ -48,10 +48,10 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   modal,
   bookmarkHeights,
   // setBookmarks,
-  setFolderBookmarks, 
+  // setFolderBookmarks, 
   isFolder,
 }) => {
-  
+  const [, setFolderBookmarks] = useAtom(folderBookmarksAtom)
   const [, setBookmarks] = useAtom(bookmarksAtom)
   const [newTag, setNewTag] = useState<string>("");
   const [tagArray, setTagArray] = useState<string[]>(
@@ -449,7 +449,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                       BookmarkId={bookmarkId}
                       // setBookmarks={setBookmarks}
                       isFolder={isFolder}
-                      setFolderBookmarks={setFolderBookmarks}
+                      // setFolderBookmarks={setFolderBookmarks}
                     />
                   </div>
                 )}

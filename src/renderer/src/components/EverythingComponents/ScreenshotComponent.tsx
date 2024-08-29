@@ -5,7 +5,7 @@ import { useState } from "react";
 
 
 import { toast } from "sonner";
-import { Bookmark } from "../../lib/schema";
+// import { Bookmark } from "../../lib/schema";
 import { useAtom } from "jotai";
 import { bookmarksAtom } from "@renderer/lib/atoms";
 

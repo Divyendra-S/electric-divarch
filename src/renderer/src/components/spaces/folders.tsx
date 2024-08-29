@@ -1,13 +1,13 @@
-'use client'
 import React, { useEffect, useState } from 'react'
 
 import { CircleChevronLeft } from 'lucide-react'
 
 import { Bookmark, Folder } from '../../lib/schema'
-import Navbar from '../EverythingComponents/Navbar'
 import Masonry from 'react-masonry-css'
 import { SkeletonCard } from '../EverythingComponents/SkeletonCard'
 import BookmarkModal from '../EverythingComponents/BookmarkModal'
+import { useAtom } from 'jotai'
+import { folderBookmarksAtom } from '@renderer/lib/atoms'
 
 const getRandomHeightMultiplier = () => {
   const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3]
@@ -15,7 +15,7 @@ const getRandomHeightMultiplier = () => {
 }
 
 const FolderPage = ({ folderId, navId, setNavId, setFolderId}) => {
-  const [folderBookmarks, setFolderBookmarks] = useState<Bookmark[]>([])
+  const [folderBookmarks, setFolderBookmarks] = useAtom(folderBookmarksAtom)
   const [folder, setFolder] = useState<Folder | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [error, setError] = useState<string | null>(null)
@@ -157,7 +157,7 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId}) => {
                     tags={bookmark.tags}
                         bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
                         // setBookmarks={setBookmarks}
-                    setFolderBookmarks={setFolderBookmarks}
+                    
                     isFolder={isFolder}
                   />
                 </div>

@@ -7,3 +7,4 @@ export const store: any = createStore();
 
 
 export const bookmarksAtom = atom<Bookmark[]>([])
+export const folderBookmarksAtom = atom<Bookmark[]>([])
