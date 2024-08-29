@@ -17,6 +17,8 @@ import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { cn } from "@renderer/lib/utils";
+import { useAtom } from "jotai";
+import { bookmarksAtom } from "@renderer/lib/atoms";
 
 
 
@@ -32,7 +34,7 @@ type BookmarkCardProps = {
   modal?: boolean;
   bookmarkHeights: number;
   isFolder?: boolean;
-  setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 };
 
@@ -45,12 +47,12 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   bookmarkId,
   modal,
   bookmarkHeights,
-  setBookmarks,
+  // setBookmarks,
   setFolderBookmarks, 
   isFolder,
 }) => {
-  const link = text;
-  const domain = extractDomain(link);
+  
+  const [, setBookmarks] = useAtom(bookmarksAtom)
   const [newTag, setNewTag] = useState<string>("");
   const [tagArray, setTagArray] = useState<string[]>(
     tags.split(",").map((tag: string) => tag.trim())
@@ -68,7 +70,8 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   const [bookmarkText, setBookmarkText] = useState<string>(text);
   const [isOpen, setIsOpen] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
-
+  const link = text;
+  const domain = extractDomain(link);
   const handleAddToFolder = async (folderId: number) => {
     try {
       const result = await window.electrons.addBookmarkToFolder(bookmarkId, folderId);
@@ -444,7 +447,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                       onSelectFolder={handleAddToFolder}
                       onClose={() => setShowFolderSelector(false)}
                       BookmarkId={bookmarkId}
-                      setBookmarks={setBookmarks}
+                      // setBookmarks={setBookmarks}
                       isFolder={isFolder}
                       setFolderBookmarks={setFolderBookmarks}
                     />

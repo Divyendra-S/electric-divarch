@@ -4,6 +4,8 @@ import { Bookmark, Folder } from "../../lib/schema";
 import { Button } from "../ui/button";
 import { cn } from "@renderer/lib/utils";
 import { toast } from "sonner";
+import { useAtom } from "jotai";
+import { bookmarksAtom } from "@renderer/lib/atoms";
 
 
 
@@ -18,7 +20,7 @@ interface FolderSelectorProps {
   onSelectFolder: (folderId: number) => void;
   onClose: () => void;
   BookmarkId: number;
-  setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   isFolder?: boolean;
   setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
@@ -29,12 +31,13 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   onClose,
   folder,
   BookmarkId,
-  setBookmarks,
+  // setBookmarks,
   isFolder,
   setFolderBookmarks
 }) => {
+  const [, setBookmarks] = useAtom(bookmarksAtom)
   const fetchAllBookmarks = async() => {
-    if (isFolder && folder ) {
+    if (isFolder && folder) {
       const fetchedBookmarks = await window.electrons.getBookmarksByFolderId(Number(folder.id));
       if ('error' in fetchedBookmarks) {
         toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
@@ -45,6 +48,18 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
         return;
       }
       setFolderBookmarks(fetchedBookmarks);
+      const allBookmarks = await window.electrons.getAllBookmarks();
+      if ('error' in allBookmarks) {
+        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+        return;
+      }
+      if (!setBookmarks) {
+        toast.error("SetBookmarks function is not defined");
+        return;
+      }
+      console.log(folder, 'folder')
+      setBookmarks(allBookmarks);
+    } else {
       const allBookmarks = await window.electrons.getAllBookmarks();
       if ('error' in allBookmarks) {
         toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);

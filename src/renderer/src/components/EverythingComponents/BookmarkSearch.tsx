@@ -5,11 +5,13 @@ import logo from "../../assets/logo.png";
 import { toast } from "sonner";
 import { Bookmark } from "../../lib/schema";
 import { debounce } from 'lodash';
+import { useAtom } from "jotai";
+import { bookmarksAtom } from "@renderer/lib/atoms";
 
 interface BookmarkSearchProps {
   setFilteredBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   setSearchString: React.Dispatch<React.SetStateAction<boolean>>;
-  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
+  // setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
 
 const FocusedInput: React.FC<{
@@ -56,8 +58,9 @@ const FocusedInput: React.FC<{
 const BookmarkSearch: React.FC<BookmarkSearchProps> = ({
   setFilteredBookmarks,
   setSearchString,
-  setBookmarks
+  // setBookmarks
 }) => {
+  const [, setBookmarks] = useAtom(bookmarksAtom)
   const [tags, setTags] = useState<string>("");
   const [filteredBookmarks, setLocalFilteredBookmarks] = useState<Bookmark[]>(
     []

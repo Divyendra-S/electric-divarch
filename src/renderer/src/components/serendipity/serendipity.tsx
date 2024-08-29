@@ -4,11 +4,11 @@ import ScreenshotComponent from "../EverythingComponents/ScreenshotComponent";
 
 
 
-const Serendipity = ({setBookmark}) => {
+const Serendipity = () => {
   return (
     <div className="bg-[#14161e] min-h-screen ">
       {/* <Navbar setNavId={setNavId} navId={navId} /> */}
-      <ScreenshotComponent setBookmarks={setBookmark} />
+      <ScreenshotComponent  />
       
     </div>
   );

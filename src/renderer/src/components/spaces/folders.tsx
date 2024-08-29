@@ -14,7 +14,7 @@ const getRandomHeightMultiplier = () => {
   return multipliers[Math.floor(Math.random() * multipliers.length)]
 }
 
-const FolderPage = ({ folderId, navId, setNavId, setFolderId,setBookmarks }) => {
+const FolderPage = ({ folderId, navId, setNavId, setFolderId}) => {
   const [folderBookmarks, setFolderBookmarks] = useState<Bookmark[]>([])
   const [folder, setFolder] = useState<Folder | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true)
@@ -156,7 +156,7 @@ const FolderPage = ({ folderId, navId, setNavId, setFolderId,setBookmarks }) => 
                     title={bookmark.title}
                     tags={bookmark.tags}
                         bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                        setBookmarks={setBookmarks}
+                        // setBookmarks={setBookmarks}
                     setFolderBookmarks={setFolderBookmarks}
                     isFolder={isFolder}
                   />

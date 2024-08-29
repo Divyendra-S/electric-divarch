@@ -6,18 +6,21 @@ import { useState } from "react";
 
 import { toast } from "sonner";
 import { Bookmark } from "../../lib/schema";
+import { useAtom } from "jotai";
+import { bookmarksAtom } from "@renderer/lib/atoms";
 
 
-type ScreenshotResponse = {
-  screenshot?: string | undefined;
-  html?: string | undefined;
-  error?: string | undefined;
-};
-type ErrorResponse = { error: string };
-type ScreenshotComponentProps = {
-  setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>
-}
-export default function ScreenshotComponent({setBookmarks}:ScreenshotComponentProps) {
+// type ScreenshotResponse = {
+//   screenshot?: string | undefined;
+//   html?: string | undefined;
+//   error?: string | undefined;
+// };
+// type ErrorResponse = { error: string };
+// type ScreenshotComponentProps = {
+//   setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>
+// }
+export default function ScreenshotComponent() {
+  const [,setBookmarks] = useAtom(bookmarksAtom)
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<{
     screenshot?: string;

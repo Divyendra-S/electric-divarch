@@ -286,6 +286,8 @@ import { SkeletonCard } from './SkeletonCard'
 import Spaces from '../spaces/spaces'
 import Serendipity from '../serendipity/serendipity'
 import FolderPage from '../spaces/folders'
+import { bookmarksAtom } from '@renderer/lib/atoms'
+import { useAtom } from 'jotai'
 
 const getRandomHeightMultiplier = () => {
   const multipliers = [1, 0.8, 1, 1.1, 1.2, 0.7, 1.3]
@@ -293,7 +295,7 @@ const getRandomHeightMultiplier = () => {
 }
 
 const EveryBookmark = () => {
-  const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
+  const [bookmarks, setBookmarks] = useAtom(bookmarksAtom)
   const [filteredBookmarks, setFilteredBookmarks] = useState<Bookmark[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -412,7 +414,7 @@ const EveryBookmark = () => {
       case 'spaces':
         return <Spaces navId={navId} setNavId={handleNavigation} setFolderId={setFolderId} />
       case 'serendipity':
-        return <Serendipity setBookmark={setBookmarks} />
+        return <Serendipity  />
       case 'folder':
         return folderId !== 0 ? (
           <FolderPage
@@ -420,7 +422,7 @@ const EveryBookmark = () => {
             navId={navId}
             setNavId={handleNavigation}
             setFolderId={setFolderId}
-            setBookmarks={setBookmarks}
+            // setBookmarks={setBookmarks}
           />
         ) : null
       default:
@@ -429,7 +431,7 @@ const EveryBookmark = () => {
             <BookmarkSearch
               setFilteredBookmarks={setFilteredBookmarks}
               setSearchString={setSearchString}
-              setBookmarks={setBookmarks}
+              // setBookmarks={setBookmarks}
             />
             {modal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -484,7 +486,7 @@ const EveryBookmark = () => {
                       title={bookmark.title}
                       tags={bookmark.tags}
                       bookmarkHeights={bookmarkHeights[bookmark.id] || 1}
-                      setBookmarks={setBookmarks}
+                      // setBookmarks={setBookmarks}
                       
                     />
                   ))}
