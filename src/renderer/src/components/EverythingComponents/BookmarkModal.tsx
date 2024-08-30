@@ -26,8 +26,6 @@ type BookmarkCardProps = {
   modal?: boolean
   bookmarkHeights: number
   isFolder?: boolean
-  // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
-  // setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
 
 const BookmarkModal: React.FC<BookmarkCardProps> = ({
@@ -96,18 +94,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
             return
           }
           setFolderBookmarks(fetchedBookmarks)
-        } else {
-          // const allBookmarks = await window.electrons.getAllBookmarks()
-          // if ('error' in allBookmarks) {
-          //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
-          //   return
-          // }
-          // if (!setBookmarks) {
-          //   toast.error('SetBookmarks function is not defined')
-          //   return
-          // }
-          // setBookmarks(allBookmarks)
-        }
+        } 
 
         setIsOpen(false)
         toast.success('Bookmark deleted successfully')
@@ -118,18 +105,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
     } catch (error) {
       console.error('Error deleting bookmark:', error)
       toast.error('An error occurred while deleting bookmark')
-    } finally {
-      // const allBookmarks = await window.electrons.getAllBookmarks()
-      // if ('error' in allBookmarks) {
-      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
-      //   return
-      // }
-      // if (!setBookmarks) {
-      //   toast.error('SetBookmarks function is not defined')
-      //   return
-      // }
-      // setBookmarks(allBookmarks)
-    }
+    } 
   }
 
   useEffect(() => {
@@ -184,16 +160,6 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
       try {
         await window.electrons.addTag(bookmarkId, newTag.trim())
         setTagArray((prevTags) => [...prevTags, newTag.trim()])
-        // const allBookmarks = await window.electrons.getAllBookmarks()
-        // if ('error' in allBookmarks) {
-        //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
-        //   return
-        // }
-        // if (!setBookmarks) {
-        //   toast.error('SetBookmarks function is not defined')
-        //   return
-        // }
-        // setBookmarks(allBookmarks)
         setNewTag('')
         setIsAddingTag(false)
         toast.success('Tag added successfully')
@@ -212,16 +178,6 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         return
       }
       setTagArray((prevTags) => prevTags.filter((tag) => tag !== tagToDelete))
-      // const allBookmarks = await window.electrons.getAllBookmarks()
-      // if ('error' in allBookmarks) {
-      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
-      //   return
-      // }
-      // if (!setBookmarks) {
-      //   toast.error('SetBookmarks function is not defined')
-      //   return
-      // }
-      // setBookmarks(allBookmarks)
       toast.success('Tag deleted successfully')
     } catch (error) {
       console.error('Error deleting tag:', error)
@@ -232,16 +188,6 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   const handleTitleBlur = async () => {
     try {
       await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText)
-      // const allBookmarks = await window.electrons.getAllBookmarks()
-      // if ('error' in allBookmarks) {
-      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
-      //   return
-      // }
-      // if (!setBookmarks) {
-      //   toast.error('SetBookmarks function is not defined')
-      //   return
-      // }
-      // setBookmarks(allBookmarks)
       toast.success('Title updated successfully')
     } catch (error) {
       console.error('Error updating title:', error)
@@ -254,15 +200,6 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   const handleTextBlur = async () => {
     try {
       await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText)
-      // const allBookmarks = await window.electrons.getAllBookmarks()
-      // if ('error' in allBookmarks) {
-      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
-      //   return
-      // }
-      // if (!setBookmarks) {
-      //   return
-      // }
-      // setBookmarks(allBookmarks)
       toast.success('Text updated successfully')
     } catch (error) {
       console.error('Error updating text:', error)

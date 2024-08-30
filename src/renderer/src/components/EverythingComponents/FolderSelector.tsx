@@ -20,9 +20,7 @@ interface FolderSelectorProps {
   onSelectFolder: (folderId: number) => void;
   onClose: () => void;
   BookmarkId: number;
-  // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   isFolder?: boolean;
-  // setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
 }
 
 const FolderSelector: React.FC<FolderSelectorProps> = ({
@@ -31,12 +29,10 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   onClose,
   folder,
   BookmarkId,
-  // setBookmarks,
   isFolder,
-  // setFolderBookmarks
 }) => {
   const [, setFolderBookmarks] = useAtom(folderBookmarksAtom)
-  const [, setBookmarks] = useAtom(bookmarksAtom)
+  
   const fetchAllBookmarks = async() => {
     if (isFolder && folder) {
       const fetchedBookmarks = await window.electrons.getBookmarksByFolderId(Number(folder.id));
@@ -49,30 +45,8 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
         return;
       }
       setFolderBookmarks(fetchedBookmarks);
-      // const allBookmarks = await window.electrons.getAllBookmarks();
-      // if ('error' in allBookmarks) {
-      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-      //   return;
-      // }
-      // if (!setBookmarks) {
-      //   toast.error("SetBookmarks function is not defined");
-      //   return;
-      // }
-      // console.log(folder, 'folder')
-      // setBookmarks(allBookmarks);
-    } else {
-      // const allBookmarks = await window.electrons.getAllBookmarks();
-      // if ('error' in allBookmarks) {
-      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-      //   return;
-      // }
-      // if (!setBookmarks) {
-      //   toast.error("SetBookmarks function is not defined");
-      //   return;
-      // }
-      // console.log(folder, 'folder')
-      // setBookmarks(allBookmarks);
-    }
+      
+    } 
   }
   {console.log(folder,"goooslso")}
   return (
