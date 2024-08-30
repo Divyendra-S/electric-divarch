@@ -139,6 +139,7 @@ function createWindow(): void {
     console.log('html')
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+  setupIpcHandlers(mainWindow);
 }
 
 // This method will be called when Electron has finished
@@ -157,7 +158,7 @@ app.whenReady().then(() => {
  
   
   
-  setupIpcHandlers();
+  
   createWindow()
 
   app.on('activate', function () {

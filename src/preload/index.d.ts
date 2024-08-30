@@ -28,6 +28,7 @@ declare global {
       addBookmarkToFolder: (bookmarkId: number, folderId: number) => Promise<any>;
       searchBookmarks: (tagsToSearch: string) => Promise<any>;
       onWindowFocus: (callback) => void;
+      onBookmarkChanged: (callback: () => void) => void;
     };
   }
 }

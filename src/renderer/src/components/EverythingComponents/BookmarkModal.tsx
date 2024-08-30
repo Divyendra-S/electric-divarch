@@ -1,42 +1,34 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from 'react'
 
-import BookmarkCard from "./BookmarkCard";
+import BookmarkCard from './BookmarkCard'
 
+import { Plus, X, Circle, Trash2 } from 'lucide-react'
 
+import FolderSelector from './FolderSelector'
 
+import { toast } from 'sonner'
 
-import { Plus, X, Circle, Trash2 } from "lucide-react";
-
-import FolderSelector from "./FolderSelector";
-
-import { toast } from "sonner";
-
-
-import { Bookmark, Folder } from "../../lib/schema";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
-import { cn } from "@renderer/lib/utils";
-import { useAtom } from "jotai";
-import { bookmarksAtom, folderBookmarksAtom } from "@renderer/lib/atoms";
-
-
-
-
+import { Bookmark, Folder } from '../../lib/schema'
+import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog'
+import { Input } from '../ui/input'
+import { Button } from '../ui/button'
+import { cn } from '@renderer/lib/utils'
+import { useAtom } from 'jotai'
+import { bookmarksAtom, fetchBookmarks, folderBookmarksAtom } from '@renderer/lib/atoms'
 
 type BookmarkCardProps = {
-  screenshot: string | null;
-  text: string;
-  title: string | null;
-  tags: string;
-  folder: Folder | null;
-  bookmarkId: number;
-  modal?: boolean;
-  bookmarkHeights: number;
-  isFolder?: boolean;
+  screenshot: string | null
+  text: string
+  title: string | null
+  tags: string
+  folder: Folder | null
+  bookmarkId: number
+  modal?: boolean
+  bookmarkHeights: number
+  isFolder?: boolean
   // setBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   // setFolderBookmarks?: React.Dispatch<React.SetStateAction<Bookmark[]>>;
-};
+}
 
 const BookmarkModal: React.FC<BookmarkCardProps> = ({
   screenshot,
@@ -48,220 +40,235 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
   modal,
   bookmarkHeights,
   // setBookmarks,
-  // setFolderBookmarks, 
-  isFolder,
+  // setFolderBookmarks,
+  isFolder
 }) => {
   const [, setFolderBookmarks] = useAtom(folderBookmarksAtom)
   const [, setBookmarks] = useAtom(bookmarksAtom)
-  const [newTag, setNewTag] = useState<string>("");
+  const [newTag, setNewTag] = useState<string>('')
   const [tagArray, setTagArray] = useState<string[]>(
-    tags.split(",").map((tag: string) => tag.trim())
-  );
-  const [isAddingTag, setIsAddingTag] = useState<boolean>(false);
+    tags.split(',').map((tag: string) => tag.trim())
+  )
+  const [isAddingTag, setIsAddingTag] = useState<boolean>(false)
   const [folders, setFolders] = useState<
     {
-      name: string;
-      id: number;
+      name: string
+      id: number
     }[]
-  >([]);
-  const [showFolderSelector, setShowFolderSelector] = useState(false);
-  const folderSelectorRef = useRef<HTMLDivElement>(null);
-  const [bookmarkTitle, setBookmarkTitle] = useState<string>(title || "");
-  const [bookmarkText, setBookmarkText] = useState<string>(text);
-  const [isOpen, setIsOpen] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const link = text;
-  const domain = extractDomain(link);
+  >([])
+  const [showFolderSelector, setShowFolderSelector] = useState(false)
+  const folderSelectorRef = useRef<HTMLDivElement>(null)
+  const [bookmarkTitle, setBookmarkTitle] = useState<string>(title || '')
+  const [bookmarkText, setBookmarkText] = useState<string>(text)
+  const [isOpen, setIsOpen] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const link = text
+  const domain = extractDomain(link)
+  
   const handleAddToFolder = async (folderId: number) => {
     try {
-      const result = await window.electrons.addBookmarkToFolder(bookmarkId, folderId);
+      const result = await window.electrons.addBookmarkToFolder(bookmarkId, folderId)
       if (result.success) {
-        setShowFolderSelector(false);
-        toast.success("Bookmark added to folder successfully");
+        setShowFolderSelector(false)
+        toast.success('Bookmark added to folder successfully')
       } else {
-        console.error(result.error);
-        toast.error("Failed to add bookmark to folder");
+        console.error(result.error)
+        toast.error('Failed to add bookmark to folder')
       }
     } catch (error) {
-      console.error("Error adding bookmark to folder:", error);
-      toast.error("An error occurred while adding bookmark to folder");
+      console.error('Error adding bookmark to folder:', error)
+      toast.error('An error occurred while adding bookmark to folder')
     }
-  };
+  }
 
   const handleDeleteBookmark = async () => {
     try {
-      const result = await window.electrons.deleteBookmark(bookmarkId);
+      const result = await window.electrons.deleteBookmark(bookmarkId)
       if (result.success) {
         if (isFolder && folder) {
-          const fetchedBookmarks = await window.electrons.getBookmarksByFolderId(Number(folder.id));
+          const fetchedBookmarks = await window.electrons.getBookmarksByFolderId(Number(folder.id))
           if ('error' in fetchedBookmarks) {
-            toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`);
-            return;
+            toast.error(`Error fetching bookmarks: ${fetchedBookmarks.error}`)
+            return
           }
           if (!setFolderBookmarks) {
-            toast.error("SetBookmarks function is not defined");
-            return;
+            toast.error('SetBookmarks function is not defined')
+            return
           }
-          setFolderBookmarks(fetchedBookmarks);
-          
+          setFolderBookmarks(fetchedBookmarks)
         } else {
-          const allBookmarks = await window.electrons.getAllBookmarks();
-          if ('error' in allBookmarks) {
-            toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-            return;
-          }
-          if (!setBookmarks) {
-            toast.error("SetBookmarks function is not defined");
-            return;
-          }
-          setBookmarks(allBookmarks);
+          // const allBookmarks = await window.electrons.getAllBookmarks()
+          // if ('error' in allBookmarks) {
+          //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
+          //   return
+          // }
+          // if (!setBookmarks) {
+          //   toast.error('SetBookmarks function is not defined')
+          //   return
+          // }
+          // setBookmarks(allBookmarks)
         }
-        
-        setIsOpen(false);
-        toast.success("Bookmark deleted successfully");
+
+        setIsOpen(false)
+        toast.success('Bookmark deleted successfully')
       } else {
-        console.error(result.error);
-        toast.error("Failed to delete bookmark");
+        console.error(result.error)
+        toast.error('Failed to delete bookmark')
       }
     } catch (error) {
-      console.error("Error deleting bookmark:", error);
-      toast.error("An error occurred while deleting bookmark");
+      console.error('Error deleting bookmark:', error)
+      toast.error('An error occurred while deleting bookmark')
     } finally {
-      
-        const allBookmarks = await window.electrons.getAllBookmarks();
-        if ('error' in allBookmarks) {
-          toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-          return;
-        }
-        if (!setBookmarks) {
-          toast.error("SetBookmarks function is not defined");
-          return;
-        }
-        setBookmarks(allBookmarks);
-      
+      // const allBookmarks = await window.electrons.getAllBookmarks()
+      // if ('error' in allBookmarks) {
+      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
+      //   return
+      // }
+      // if (!setBookmarks) {
+      //   toast.error('SetBookmarks function is not defined')
+      //   return
+      // }
+      // setBookmarks(allBookmarks)
     }
-  };
+  }
 
   useEffect(() => {
     const fetchFolders = async () => {
       try {
-        const fetchedFolders = await window.electrons.getFolders();
+        const fetchedFolders = await window.electrons.getFolders()
         if ('error' in fetchedFolders) {
-          toast.error(`Error fetching folders: ${fetchedFolders.error}`);
-          return;
+          toast.error(`Error fetching folders: ${fetchedFolders.error}`)
+          return
         }
-        setFolders(fetchedFolders);
+        setFolders(fetchedFolders)
       } catch (error) {
-        console.error("Error fetching folders:", error);
-        toast.error("An error occurred while fetching folders");
+        console.error('Error fetching folders:', error)
+        toast.error('An error occurred while fetching folders')
       }
-    };
-    fetchFolders();
-  }, []);
+    }
+    fetchFolders()
+  }, [])
   useEffect(() => {
     // Function to remove focus
     const removeFocus = () => {
       if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
+        document.activeElement.blur()
       }
-    };
+    }
 
     // Set a small timeout to ensure the dialog has opened
-    const timeoutId = setTimeout(removeFocus, 100);
+    const timeoutId = setTimeout(removeFocus, 100)
 
     // Clean up the timeout
-    return () => clearTimeout(timeoutId);
-  }, []);
+    return () => clearTimeout(timeoutId)
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        folderSelectorRef.current &&
-        !folderSelectorRef.current.contains(event.target as Node)
-      ) {
-        setShowFolderSelector(false);
+      if (folderSelectorRef.current && !folderSelectorRef.current.contains(event.target as Node)) {
+        setShowFolderSelector(false)
       }
-    };
+    }
 
     if (showFolderSelector) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showFolderSelector]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showFolderSelector])
 
   const handleAddTag = async () => {
     if (newTag.trim()) {
       try {
-        await window.electrons.addTag(bookmarkId, newTag.trim());
-        setTagArray((prevTags) => [...prevTags, newTag.trim()]);
-        setNewTag("");
-        setIsAddingTag(false);
-        toast.success("Tag added successfully");
+        await window.electrons.addTag(bookmarkId, newTag.trim())
+        setTagArray((prevTags) => [...prevTags, newTag.trim()])
+        // const allBookmarks = await window.electrons.getAllBookmarks()
+        // if ('error' in allBookmarks) {
+        //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
+        //   return
+        // }
+        // if (!setBookmarks) {
+        //   toast.error('SetBookmarks function is not defined')
+        //   return
+        // }
+        // setBookmarks(allBookmarks)
+        setNewTag('')
+        setIsAddingTag(false)
+        toast.success('Tag added successfully')
       } catch (error) {
-        console.error("Error adding tag:", error);
-        toast.error("Failed to add tag");
+        console.error('Error adding tag:', error)
+        toast.error('Failed to add tag')
       }
     }
-  };
+  }
 
   const handleDeleteTag = async (tagToDelete: string) => {
     try {
-      const response = await window.electrons.DeleteTag(bookmarkId, tagToDelete);
-      if (!response.success) { 
+      const response = await window.electrons.DeleteTag(bookmarkId, tagToDelete)
+      if (!response.success) {
         toast.error(response.error)
-        return;
+        return
       }
-      setTagArray((prevTags) => prevTags.filter((tag) => tag !== tagToDelete));
-      toast.success("Tag deleted successfully");
+      setTagArray((prevTags) => prevTags.filter((tag) => tag !== tagToDelete))
+      // const allBookmarks = await window.electrons.getAllBookmarks()
+      // if ('error' in allBookmarks) {
+      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
+      //   return
+      // }
+      // if (!setBookmarks) {
+      //   toast.error('SetBookmarks function is not defined')
+      //   return
+      // }
+      // setBookmarks(allBookmarks)
+      toast.success('Tag deleted successfully')
     } catch (error) {
-      console.error("Error deleting tag:", error);
-      toast.error("Failed to delete tag");
+      console.error('Error deleting tag:', error)
+      toast.error('Failed to delete tag')
     }
-  };
+  }
 
   const handleTitleBlur = async () => {
     try {
-      await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
-      const allBookmarks = await window.electrons.getAllBookmarks();
-      if ('error' in allBookmarks) {
-        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-        return;
-      }
-      if (!setBookmarks) {
-        toast.error("SetBookmarks function is not defined");
-        return;
-      }
-      setBookmarks(allBookmarks);
-      toast.success("Title updated successfully");
+      await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText)
+      // const allBookmarks = await window.electrons.getAllBookmarks()
+      // if ('error' in allBookmarks) {
+      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
+      //   return
+      // }
+      // if (!setBookmarks) {
+      //   toast.error('SetBookmarks function is not defined')
+      //   return
+      // }
+      // setBookmarks(allBookmarks)
+      toast.success('Title updated successfully')
     } catch (error) {
-      console.error("Error updating title:", error);
-      toast.error("Failed to update title");
+      console.error('Error updating title:', error)
+      toast.error('Failed to update title')
     }
-  };
-  
+  }
+
   // Similar changes for handleTextBlur
 
   const handleTextBlur = async () => {
     try {
-      await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText);
-      const allBookmarks = await window.electrons.getAllBookmarks();
-      if ('error' in allBookmarks) {
-        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-        return;
-      }
-      if (!setBookmarks) {
-        return;
-      }
-      setBookmarks(allBookmarks);
-      toast.success("Text updated successfully");
+      await window.electrons.updateBookmark(bookmarkId, bookmarkTitle, bookmarkText)
+      // const allBookmarks = await window.electrons.getAllBookmarks()
+      // if ('error' in allBookmarks) {
+      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`)
+      //   return
+      // }
+      // if (!setBookmarks) {
+      //   return
+      // }
+      // setBookmarks(allBookmarks)
+      toast.success('Text updated successfully')
     } catch (error) {
-      console.error("Error updating text:", error);
-      toast.error("Failed to update text");
+      console.error('Error updating text:', error)
+      toast.error('Failed to update text')
     }
-  };
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -275,17 +282,13 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         />
       </DialogTrigger>
       <DialogContent className="w-[94%] h-[85%] flex" ref={dialogRef}>
-        <div
-          tabIndex={-1}
-          autoFocus
-          style={{ position: "absolute", opacity: 0 }}
-        ></div>
+        <div tabIndex={-1} autoFocus style={{ position: 'absolute', opacity: 0 }}></div>
         <section className="w-full h-full ">
           <div className="flex flex-col items-center m-[100px] h-full ">
             {screenshot ? (
               <img
                 src={`data:image/jpeg;base64,${screenshot}`}
-                alt={title || "Bookmark screenshot"}
+                alt={title || 'Bookmark screenshot'}
                 width={600}
                 height={300}
                 className="rounded-lg object-cover"
@@ -297,7 +300,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                 className="w-full h-full p-4 bg-transparent text-gray-500 focus:outline-none resize-none"
                 placeholder="Enter text here"
                 // onBlur={handleTextBlur}
-                onKeyPress={(e) => e.key === "Enter" && handleTextBlur()}
+                onKeyPress={(e) => e.key === 'Enter' && handleTextBlur()}
                 autoFocus={false}
               />
             )}
@@ -305,7 +308,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
             {screenshot && (
               <>
                 <div className="mt-4 text-3xl text-[#a7b4c6] font-bold font-nunito text-center bg-transparent border-none focus:outline-none">
-                  {bookmarkTitle}{" "}
+                  {bookmarkTitle}{' '}
                 </div>
                 <a
                   href={text}
@@ -327,16 +330,11 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                   onChange={(e) => setBookmarkTitle(e.target.value)}
                   placeholder="Title goes here"
                   className="text-[29px] font-extralight truncate border-none p-0 text-start  focus:outline-none bg-transparent "
-                  onKeyPress={(e) => e.key === "Enter" && handleTitleBlur()}
+                  onKeyPress={(e) => e.key === 'Enter' && handleTitleBlur()}
                   // onBlur={handleTitleBlur}
                   autoFocus
                 />
-                <a
-                  href={link}
-                  
-                  rel="noopener noreferrer"
-                  className="font-extralight "
-                >
+                <a href={link} rel="noopener noreferrer" className="font-extralight ">
                   {domain}
                 </a>
               </>
@@ -350,32 +348,24 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
               />
             )}
           </header>
-          <div className="h-[calc(100%-95px)] flex flex-col justify-between scroll bg-[#1d1e28]">
+          <div className="h-[calc(100%-95px)] flex flex-col justify-between scroll bg-[#1d1e28] overflow-y-scroll">
             <div>
               <div className="Tldr text-[#748297] font-nunito p-4">
                 <div className="top-left-text "></div>
                 Content here to ensure the div is visible
               </div>
               <div className="overflow-scroll p-4 pb-0">
-                {screenshot && (
-                  <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>
-                )}
+                {screenshot && <h3 className="text-[#a7b4c6] font-nunito mb-2">Tags:</h3>}
                 <div
                   className={cn(
-                    "overflow-hidden transition-all duration-300 ease-in-out",
-                    isAddingTag
-                      ? "mb-4 max-h-20 opacity-100"
-                      : "max-h-0 opacity-0"
+                    'overflow-hidden transition-all duration-300 ease-in-out',
+                    isAddingTag ? 'mb-4 max-h-20 opacity-100' : 'max-h-0 opacity-0'
                   )}
                   style={{
-                    transform: isAddingTag
-                      ? "translateY(0)"
-                      : "translateY(-20px)",
-                    transitionProperty: "max-height, opacity, transform",
-                    transitionDuration: "400ms, 400ms, 400ms",
-                    transitionDelay: isAddingTag
-                      ? "0ms, 0ms, 0ms"
-                      : "0ms, 0ms, 0ms",
+                    transform: isAddingTag ? 'translateY(0)' : 'translateY(-20px)',
+                    transitionProperty: 'max-height, opacity, transform',
+                    transitionDuration: '400ms, 400ms, 400ms',
+                    transitionDelay: isAddingTag ? '0ms, 0ms, 0ms' : '0ms, 0ms, 0ms'
                   }}
                 >
                   <div className="flex gap-1">
@@ -387,7 +377,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                       }
                       placeholder="New tag"
                       className="bg-[#242531] h-[45px] focus:outline-none text-[#a7b4c6] flex-grow border-none Input"
-                      onKeyPress={(e) => e.key === "Enter" && handleAddTag()}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
                     />
                     <Button
                       onClick={handleAddTag}
@@ -397,14 +387,12 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                     </Button>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4 ">
                   <button
                     onClick={() => setIsAddingTag(!isAddingTag)}
                     className={cn(
-                      "bg-[#ff5924] text-white px-2.5 py-1.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] ",
-                      isAddingTag
-                        ? " bg-transparent "
-                        : "opacity-100 translate-y-0 duration-100 "
+                      'bg-[#ff5924] text-white px-2.5 py-1.5 rounded-full text-sm flex items-center transition-all duration-300 font-nunito hover:bg-[#2a2b38] border border-[#ff5924] ',
+                      isAddingTag ? ' bg-transparent ' : 'opacity-100 translate-y-0 duration-100 '
                     )}
                   >
                     <Plus size={13} className="mr-1" />
@@ -415,7 +403,7 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                       <div
                         key={index}
                         className="relative group"
-                        style={{ boxShadow: "5px 5px 22px rgb(0 0 0 / 11%)" }}
+                        style={{ boxShadow: '5px 5px 22px rgb(0 0 0 / 11%)' }}
                       >
                         <span className="bg-[#1c1e26] group-hover:bg-black text-[#748297] px-3 py-1.5 rounded-full text-sm font-nunito font-extralight inline-block border group-hover:border cursor-pointer">
                           {tag}
@@ -428,6 +416,24 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
                         </button>
                       </div>
                     ))}
+                  {/* {screenshot &&
+                    tagArray.slice(-9).map((tag: string, index: number) => (
+                      <div
+                        key={index}
+                        className="relative group"
+                        style={{ boxShadow: '5px 5px 22px rgb(0 0 0 / 11%)' }}
+                      >
+                        <span className="bg-[#1c1e26] group-hover:bg-black text-[#748297] px-3 py-1.5 rounded-full text-sm font-nunito font-extralight inline-block border group-hover:border cursor-pointer">
+                          {tag}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteTag(tag)}
+                          className="absolute -top-1 -right-1 bg-[#36373a] text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-[#2a2b38] border"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))} */}
                 </div>
               </div>
             </div>
@@ -465,18 +471,18 @@ const BookmarkModal: React.FC<BookmarkCardProps> = ({
         </section>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default BookmarkModal;
+export default BookmarkModal
 
 function extractDomain(url: string): string {
-  let domain;
-  if (url.indexOf("//") > -1) {
-    domain = url.split("/")[2];
+  let domain
+  if (url.indexOf('//') > -1) {
+    domain = url.split('/')[2]
   } else {
-    domain = url.split("/")[0];
+    domain = url.split('/')[0]
   }
-  domain = domain.split(":")[0].split("?")[0];
-  return domain;
+  domain = domain.split(':')[0].split('?')[0]
+  return domain
 }

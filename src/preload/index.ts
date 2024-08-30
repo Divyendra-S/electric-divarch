@@ -51,6 +51,9 @@ try {
     addBookmarkToFolder: (bookmarkId: number, folderId: number) => ipcRenderer.invoke('add-bookmark-to-folder', bookmarkId, folderId),
     searchBookmarks: (tagsToSearch: string) => ipcRenderer.invoke('search-bookmarks', tagsToSearch),
     onWindowFocus: (callback) => ipcRenderer.on('window-focus', callback),
+    onBookmarkChanged: (callback: () => void) => {
+      ipcRenderer.on("bookmark-changed", callback);
+    },
   });
 
   

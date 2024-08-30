@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 
 import { toast } from "sonner";
 // import { Bookmark } from "../../lib/schema";
 import { useAtom } from "jotai";
-import { bookmarksAtom } from "@renderer/lib/atoms";
+import { bookmarksAtom, fetchBookmarks } from "@renderer/lib/atoms";
 
 
 // type ScreenshotResponse = {
@@ -32,6 +32,12 @@ export default function ScreenshotComponent() {
   const [loading, setLoading] = useState(false);
   const [tagsLoading, setTagsLoading] = useState(false);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+
+  // useEffect(() => {
+  //   window.electrons.onBookmarkChanged(() => {
+  //     fetchBookmarks(); // Reload temos when a temo is created or deleted
+  //   });
+  // }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,14 +69,14 @@ export default function ScreenshotComponent() {
       if (!response?.message) {
         toast.error(response?.error);
       } else {
-        const allBookmarks = await window.electrons.getAllBookmarks();
-        if ("error" in allBookmarks) {
-          console.error("Error fetching bookmarks:", allBookmarks.error);
-          // Optionally, you can set an error state here if you have one
-          // setError(allBookmarks.error);
-        } else {
-          setBookmarks(allBookmarks);
-        }
+        // const allBookmarks = await window.electrons.getAllBookmarks();
+        // if ("error" in allBookmarks) {
+        //   console.error("Error fetching bookmarks:", allBookmarks.error);
+        //   // Optionally, you can set an error state here if you have one
+        //   // setError(allBookmarks.error);
+        // } else {
+        //   setBookmarks(allBookmarks);
+        // }
         toast.success(response.message);
         setUrl("");
         console.log(`Bookmark saved`);

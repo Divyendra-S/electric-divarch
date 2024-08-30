@@ -49,29 +49,29 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
         return;
       }
       setFolderBookmarks(fetchedBookmarks);
-      const allBookmarks = await window.electrons.getAllBookmarks();
-      if ('error' in allBookmarks) {
-        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-        return;
-      }
-      if (!setBookmarks) {
-        toast.error("SetBookmarks function is not defined");
-        return;
-      }
-      console.log(folder, 'folder')
-      setBookmarks(allBookmarks);
+      // const allBookmarks = await window.electrons.getAllBookmarks();
+      // if ('error' in allBookmarks) {
+      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+      //   return;
+      // }
+      // if (!setBookmarks) {
+      //   toast.error("SetBookmarks function is not defined");
+      //   return;
+      // }
+      // console.log(folder, 'folder')
+      // setBookmarks(allBookmarks);
     } else {
-      const allBookmarks = await window.electrons.getAllBookmarks();
-      if ('error' in allBookmarks) {
-        toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
-        return;
-      }
-      if (!setBookmarks) {
-        toast.error("SetBookmarks function is not defined");
-        return;
-      }
-      console.log(folder, 'folder')
-      setBookmarks(allBookmarks);
+      // const allBookmarks = await window.electrons.getAllBookmarks();
+      // if ('error' in allBookmarks) {
+      //   toast.error(`Error fetching bookmarks: ${allBookmarks.error}`);
+      //   return;
+      // }
+      // if (!setBookmarks) {
+      //   toast.error("SetBookmarks function is not defined");
+      //   return;
+      // }
+      // console.log(folder, 'folder')
+      // setBookmarks(allBookmarks);
     }
   }
   {console.log(folder,"goooslso")}

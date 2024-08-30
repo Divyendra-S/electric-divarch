@@ -286,7 +286,7 @@ import { SkeletonCard } from './SkeletonCard'
 import Spaces from '../spaces/spaces'
 import Serendipity from '../serendipity/serendipity'
 import FolderPage from '../spaces/folders'
-import { bookmarksAtom } from '@renderer/lib/atoms'
+import { bookmarksAtom, fetchBookmarks } from '@renderer/lib/atoms'
 import { useAtom } from 'jotai'
 
 const getRandomHeightMultiplier = () => {
@@ -313,6 +313,13 @@ const EveryBookmark = () => {
   const handleBookmarkFormFocus = () => setIsBookmarkFormFocused(true)
   const handleBookmarkFormBlur = () => setIsBookmarkFormFocused(false)
 
+  useEffect(() => {
+    window.electrons.onBookmarkChanged(async() => {
+      const newBookmarks = await fetchBookmarks(); // Reload bookmarks when a bookmark is created or deleted or updated
+      setBookmarks(newBookmarks);
+      console.log("from1 onBookmarkChanged home page");
+    });
+  }, [setBookmarks]);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       bookmarkFormRef.current &&

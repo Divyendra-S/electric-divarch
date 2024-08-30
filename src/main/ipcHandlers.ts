@@ -167,7 +167,7 @@ function truncateHtml(html: string, maxLength: number = 1000): string {
   return html.substring(0, maxLength) + '...'
 }
 
-export const setupIpcHandlers = () => {
+export const setupIpcHandlers = (mainWindow) => {
   
   async function fetchHtmlWithWindow(url: string): Promise<string> {
     const win = new BrowserWindow({
@@ -620,7 +620,9 @@ let base64Image
     'create-folder-and-add-bookmarks',
     async (_, folderName: string, bookmarkIds: number[]) => {
       try {
-        return createFolderAndAddBookmarks(folderName, bookmarkIds)
+        const createdFolderAndAddBookmarks = createFolderAndAddBookmarks(folderName, bookmarkIds)
+        mainWindow.webContents.send("bookmark-changed");
+        return createdFolderAndAddBookmarks
       } catch (error) {
         console.error('Error creating folder and adding bookmarks:', error)
         return { error: 'Failed to create folder and add bookmarks' }
@@ -648,7 +650,9 @@ let base64Image
 
   ipcMain.handle('delete-tag', async (_, bookmarkId: number, tagToDelete: string) => {
     try {
-      return deleteTag(bookmarkId, tagToDelete)
+      const deletedTag = deleteTag(bookmarkId, tagToDelete)
+      mainWindow.webContents.send("bookmark-changed"); 
+      return deletedTag
     } catch (error) {
       console.error('Error deleting tag:', error)
       return { error: 'Error in deleting tag' }
@@ -710,7 +714,7 @@ let base64Image
         console.log(
           "folder not found so bookmark created successfully without connecting to any folder"
         );
-      
+        mainWindow.webContents.send("bookmark-changed");
         return {
           message:
             "bookmark created successfully!!! without connecting to any folder",
@@ -724,7 +728,7 @@ let base64Image
       insertBookmark.run(title, url, tags, ogData, folder.id);
       
       console.log("success");
-      
+      mainWindow.webContents.send("bookmark-changed");
       return {
         message: "bookmark created successfully and added to suitable folder",
       };
@@ -752,6 +756,7 @@ let base64Image
         const getBookmark = db.prepare('SELECT * FROM Bookmark WHERE id = ?')
         const bookmark = getBookmark.get(result.lastInsertRowid)
         // console.log(bookmark)  
+        mainWindow.webContents.send("bookmark-changed");
         return {message: "bookmark created successfully"}
       } else {
         throw new Error('Failed to create bookmark')
@@ -763,7 +768,11 @@ let base64Image
   })
   ipcMain.handle('add-tag', async (_, bookmarkId: number, newTag: string) => {
     try {
-      return addTag(bookmarkId, newTag)
+      
+       const addTags=addTag(bookmarkId, newTag)
+
+      mainWindow.webContents.send("bookmark-changed"); 
+      return addTags
     } catch (error) {
       console.error('Error adding tag:', error)
       return { error: 'Error in adding tag' }
@@ -774,7 +783,9 @@ let base64Image
     'update-bookmark',
     async (_, bookmarkId: number, title?: string, text?: string) => {
       try {
-        return updateBookmark(bookmarkId, title, text)
+        const updatedBookmark = updateBookmark(bookmarkId, title, text)
+        mainWindow.webContents.send("bookmark-changed"); 
+        return updatedBookmark
       } catch (error) {
         console.error('Error updating bookmark:', error)
         return { error: 'Failed to update bookmark' }
@@ -784,7 +795,9 @@ let base64Image
 
   ipcMain.handle('add-bookmark-to-folder', async (_, bookmarkId: number, folderId: number) => {
     try {
-      return addBookmarkToFolder(bookmarkId, folderId)
+      const addedBookmark = addBookmarkToFolder(bookmarkId, folderId)
+      mainWindow.webContents.send("bookmark-changed"); 
+      return addedBookmark
     } catch (error) {
       console.error('Error adding bookmark to folder:', error)
       return { error: 'Failed to add bookmark to folder' }
@@ -793,7 +806,9 @@ let base64Image
 
   ipcMain.handle('delete-bookmark', async (_, bookmarkId: number) => {
     try {
-      return deleteBookmark(bookmarkId)
+      const deletedBookmark = deleteBookmark(bookmarkId)
+      mainWindow.webContents.send("bookmark-changed"); 
+      return deletedBookmark
     } catch (error) {
       console.error('Error deleting bookmark:', error)
       return { error: 'Failed to delete bookmark' }

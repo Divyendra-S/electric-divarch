@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Bookmark, Folder } from "../../lib/schema";
 import { Button } from "../ui/button";
+import { fetchBookmarks } from "@renderer/lib/atoms";
 type BookmarkCardProps = {
   setBookmarks: React.Dispatch<React.SetStateAction<Bookmark[]>>;
   onFocus: () => void;
@@ -13,6 +14,8 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
   const [text, setText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -28,17 +31,17 @@ const BookmarkForm = ({ setBookmarks, onFocus, onBlur  }: BookmarkCardProps) => 
       }
       toast.success(response?.message);
       
-      const allBookmarks = await window.electrons.getAllBookmarks();
+      // const allBookmarks = await window.electrons.getAllBookmarks();
 
-      if ("error" in allBookmarks) {
-        // Handle error case
-        console.error("Error fetching bookmarks:", allBookmarks.error);
-        // Optionally, you can set an error state here if you have one
-        // setError(allBookmarks.error);
-      } else {
-        // Handle success case
-        setBookmarks(allBookmarks);
-      }
+      // if ("error" in allBookmarks) {
+      //   // Handle error case
+      //   console.error("Error fetching bookmarks:", allBookmarks.error);
+      //   // Optionally, you can set an error state here if you have one
+      //   // setError(allBookmarks.error);
+      // } else {
+      //   // Handle success case
+      //   setBookmarks(allBookmarks);
+      // }
       setText("");
     } catch (error) {
       console.error("Error creating bookmark:", error);
