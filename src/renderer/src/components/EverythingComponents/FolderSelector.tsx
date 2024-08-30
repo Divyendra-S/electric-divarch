@@ -50,7 +50,7 @@ const FolderSelector: React.FC<FolderSelectorProps> = ({
   }
   {console.log(folder,"goooslso")}
   return (
-    <div className="absolute bottom-full left-0 w-[232px] max-h-[100px] bg-[#14161e]  rounded-lg shadow-lg border-2 translate-x-[30px] overflow-y-scroll translate-y-[30px] ">
+    <div className="absolute bottom-full left-0 w-[232px] max-h-[150px] bg-[#14161e]  rounded-lg shadow-lg border-2 translate-x-[30px] overflow-y-scroll translate-y-[30px] ">
       
       <div className="flex flex-col  max-h-48 overflow-y-auto">
         {folders.map((folde) => (

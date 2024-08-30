@@ -29,16 +29,14 @@ const BookmarkCard: React.FC<BookmarkCardProps> = ({
     <div className="  shadow-md overflow-hidden  ">
       {screenshot ? (
         <>
-          <div className="relative aspect-video flex-grow  ">
+          <div className="relative  flex-grow  ">
             <img
               src={`data:image/png;base64,${screenshot}`}
               alt={title || "Bookmark"}
-              
-              
               className="rounded-md "
             />
           </div>
-          <div className="p-2">
+          <div className="p-2 ">
             <h3 className="text-sm font-nunito truncate text-center">
               {title || "Untitled"}
             </h3>
