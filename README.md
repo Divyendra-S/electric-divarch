@@ -46,14 +46,15 @@ To achieve this level of automation, the application uses the **GROQ SDK** to ac
 
 
 ## Demo of the application
-
+1.
 - When adding a new bookmark, the system:
-  - Automatically places it into the most appropriate existing folder if a similar one is found.
-  - Determines suitability based on the similarity of the new bookmark's tags or content to the bookmarks already in that folder.
+  - Automatically places it into the most appropriate existing space if a similar smart space is found.
+  - if not then it saves it without connecting to any space.
+  - Determines suitability based on the similarity of the new bookmark's tags or content to the bookmarks already in that smart space.
 
 
 https://github.com/user-attachments/assets/c613e85a-428e-4a94-84b7-25ab8a941d3e
-
+2.
 - In this demo, I am showcasing how a user can create a **Smart Space** by searching for bookmarks.
 - Since it is a Smart Space, the user won’t need to manually manage it.
 - Any new bookmark that is related to the tags of existing bookmarks within this Smart Space will automatically be saved there.
@@ -62,7 +63,7 @@ https://github.com/user-attachments/assets/c613e85a-428e-4a94-84b7-25ab8a941d3e
 
 
 https://github.com/user-attachments/assets/58b34914-d36f-455b-bab5-abc39441f4c1
-
+3.
 - In this demo, I am showcasing:
   - How users can **add** or **delete** a tag.
   - How to **save** a bookmark to an existing folder.
