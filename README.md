@@ -39,11 +39,11 @@ $ npm run build:linux
 
 https://github.com/user-attachments/assets/c613e85a-428e-4a94-84b7-25ab8a941d3e
 
-- In this demo, I am showcasing:
-  - How users can **add** or **delete** a tag.
-  - How to **save** a bookmark to an existing folder.
-  - How to **move** a bookmark from one folder to another.
-  - How to **save text as a bookmark**.
+- In this demo, I am showcasing how a user can create a **Smart Space** by searching for bookmarks.
+- Since it is a Smart Space, the user won’t need to manually manage it.
+- Any new bookmark that is related to the tags of existing bookmarks within this Smart Space will automatically be saved there.
+- The demo also covers how to delete a bookmark from the Smart Space.
+
 
 
 https://github.com/user-attachments/assets/58b34914-d36f-455b-bab5-abc39441f4c1
@@ -53,6 +53,8 @@ https://github.com/user-attachments/assets/58b34914-d36f-455b-bab5-abc39441f4c1
   - How to **save** a bookmark to an existing folder.
   - How to **move** a bookmark from one folder to another.
   - How to **save text as a bookmark**.
+  - How to **update a bookmark's title**.
 
 
-https://github.com/user-attachments/assets/1b92cf92-b4b6-4374-8709-0de38b3386bf
+
+https://github.com/user-attachments/assets/6924961a-ba28-483d-88cd-69539e3eefb4
