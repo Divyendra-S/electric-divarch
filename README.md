@@ -54,6 +54,8 @@ To achieve this level of automation, the application uses the **GROQ SDK** to ac
 
 
 https://github.com/user-attachments/assets/c613e85a-428e-4a94-84b7-25ab8a941d3e
+
+
 2.
 - In this demo, I am showcasing how a user can create a **Smart Space** by searching for bookmarks.
 - Since it is a Smart Space, the user won’t need to manually manage it.
@@ -63,6 +65,8 @@ https://github.com/user-attachments/assets/c613e85a-428e-4a94-84b7-25ab8a941d3e
 
 
 https://github.com/user-attachments/assets/58b34914-d36f-455b-bab5-abc39441f4c1
+
+
 3.
 - In this demo, I am showcasing:
   - How users can **add** or **delete** a tag.
