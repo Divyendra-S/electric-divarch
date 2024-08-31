@@ -30,6 +30,21 @@ $ npm run build:linux
 ```
 # electric-divarch
 
+## About the Application
+
+This is a **smart bookmark manager** where you can save web pages as bookmarks simply by providing the link. The application automatically generates relevant tags for each web page, making it easier to search and organize your bookmarks.
+
+### Smart Spaces
+
+- **Smart Spaces** are a key feature of this application. Users don't need to manually manage their Smart Spaces. When a new bookmark is added, it is automatically placed into the appropriate Smart Space based on its tags and content.
+  
+- For example, if a user has a Smart Space called "Shoes" where they store bookmarks related to different types of shoes, any new bookmark related to shoes will be automatically added to the "Shoes" Smart Space.
+
+### How It Works
+
+To achieve this level of automation, the application uses the **GROQ SDK** to access large language models (LLMs) that help in understanding and categorizing the content of bookmarks effectively.
+
+
 ## Demo of the application
 
 - When adding a new bookmark, the system:
